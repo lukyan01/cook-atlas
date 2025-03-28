@@ -16,6 +16,23 @@
 2. **Install PostgreSQL**
    Visit [postgresql.org](https://www.postgresql.org/download/) and install for your OS.
 
+## Exporting DB
+   ```
+   PGPASSWORD="yourpassword" pg_dump -U postgres -d cookatlas > cookatlas_dump.sql
+   ```
+
+## Importing DB
+1. Create the database (if not yet created)
+   ```
+   psql -U postgres -c "CREATE DATABASE cookatlas;"
+   ```
+
+2. Load the Schema and Data
+   ```
+   psql -U postgres -d cookatlas -f cookatlas_dump.sql
+   ```
+
+
 ## GIT Workflow
 
 1. Update Main
