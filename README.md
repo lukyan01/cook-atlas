@@ -4,6 +4,8 @@
 
 - **Git**
 - **PostgreSQL** (installed locally)
+- **Node.js**
+
 
 ## Local Setup
 
@@ -30,6 +32,28 @@
 2. Load the Schema and Data
    ```
    psql -U postgres -d cookatlas -f cookatlas_dump.sql
+   ```
+
+## Connecting DBMS to interface
+1. Install pg and dotenv packages (if not installed yet)
+   ```
+   npm init -y
+   npm install pg dotenv
+   ```
+2. Create .env file in root to store sensitive information (database credentials)
+   ```
+   DB_HOST=localhost
+   DB_USER=your_database_user
+   DB_PASSWORD=your_database_password
+   DB_NAME=your_database_name
+   DB_PORT=5432
+   ```
+   DO NOT PUSH .env file, add to .gitignore!
+   If you don't know your username, go to pgAdmin4, the PSQL tool, and enter "\du".
+
+3. Test connection
+   ```
+   node index.js
    ```
 
 
