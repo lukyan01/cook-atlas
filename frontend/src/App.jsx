@@ -17,6 +17,9 @@ function App() {
   const [updateTitle, setUpdateTitle] = useState('');
   const [updateDescription, setUpdateDescription] = useState('');
   const [deleteId, setDeleteId] = useState('');
+  const [searchQuery, setSearchQuery] = useState(''); //
+  const [searchTags, setSearchTags] = useState(''); //
+
 
   const fetchRecipes = async () => {
     try {
@@ -83,6 +86,45 @@ function App() {
   return (
     <div style={{ padding: '2rem', fontFamily: 'Arial' }}>
       <h1>CookAtlas Admin Interface</h1>
+
+      <h2>Search Recipes</h2>
+      <input
+        placeholder="Search text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        style={{ margin: '5px', padding: '5px', width: '300px' }}
+      />
+      <input
+        placeholder="Tags (comma separated)"
+        value={searchTags}
+        onChange={(e) => setSearchTags(e.target.value)}
+        style={{ margin: '5px', padding: '5px', width: '300px' }}
+      />
+      <button
+        onClick={async () => {
+          try {
+            const params = new URLSearchParams();
+            if (searchQuery) params.append('query', searchQuery);
+            if (searchTags) params.append('tags', searchTags);
+
+            const res = await fetch(`http://localhost:3000/search?${params.toString()}`);
+            const data = await res.json();
+            console.log('Search results:', data);
+            setRecipes(data);
+          } catch (err) {
+            console.error('Search error:', err);
+          }
+        }}
+        style={{ marginTop: '10px' }}
+      >
+        Search
+      </button>
+      <button
+        onClick={fetchRecipes}
+        style={{ marginTop: '10px', marginLeft: '10px' }}
+      >
+        Reset
+      </button>
 
       <h2>Insert New Recipe</h2>
       {Object.keys(newRecipe).map((field) => (

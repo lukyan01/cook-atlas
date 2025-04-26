@@ -24,6 +24,48 @@ app.get('/recipes', async (req, res) => {
   }
 });
 
+app.get('/search', async (req, res) => {
+  const { query, tags } = req.query;
+  
+  try {
+    let sql = 'SELECT * FROM recipes WHERE 1=1';
+    const params = [];
+    let paramIndex = 1;
+
+    if (query) {
+      sql += ` AND (title ILIKE $${paramIndex} OR description ILIKE $${paramIndex + 1})`;
+      params.push(`%${query}%`, `%${query}%`);
+      paramIndex += 2;
+    }
+
+    if (tags) {
+      const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+      if (tagsArray.length > 0) {
+        tagsArray.forEach((tag) => {
+          sql += ` AND (
+            description ILIKE $${paramIndex} 
+            OR skill_level ILIKE $${paramIndex} 
+            OR source_platform ILIKE $${paramIndex}
+          )`;
+          params.push(`%${tag}%`);
+          paramIndex += 1;
+        });
+      }
+    }
+
+    sql += ' ORDER BY recipe_id ASC';
+    const result = await pool.query(sql, params);
+    res.json(result.rows);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Search failed: ' + err.message);
+  }
+});
+
+
+
+
 // Insert recipe
 app.post('/insert', async (req, res) => {
   const {
