@@ -1,139 +1,48 @@
-const express = require("express");
-const app = express();
-const pool = require("./db");
 require("dotenv").config();
 
-// Enable CORS
+const express = require("express");
 const cors = require("cors");
+const pool = require("./db");
+
+// Routers
+const recipesRouter = require("./routes/recipes");
+const usersRouter = require("./routes/users");
+const tagRouter = require("./routes/tag");
+const ingredientRouter = require("./routes/ingredient");
+const engagementRouter = require("./routes/engagement");
+const ratingRouter = require("./routes/rating");
+const bookmarkRouter = require("./routes/bookmark");
+const shoppingListRouter = require("./routes/shopping_list");
+const shoppingListIngredientRouter = require("./routes/shopping_list_ingredient");
+const recipeTagRouter = require("./routes/recipe_tag");
+const recipeIngredientRouter = require("./routes/recipe_ingredient");
+const mealPlanRouter = require("./routes/meal_plan");
+const mealPlanRecipeRouter = require("./routes/meal_plan_recipe");
+
+const app = express();
+
+// Middleware
 app.use(cors());
-
-const PORT = process.env.PORT || 3000;
-
-// Middleware to parse JSON
 app.use(express.json());
 
-// === ROUTES ===
+// Mount routes
+app.use("/recipes", recipesRouter);
+app.use("/users", usersRouter);
+app.use("/tag", tagRouter);
+app.use("/ingredient", ingredientRouter);
+app.use("/engagement", engagementRouter);
+app.use("/rating", ratingRouter);
+app.use("/bookmark", bookmarkRouter);
+app.use("/shopping_list", shoppingListRouter);
+app.use("/shopping_list_ingredient", shoppingListIngredientRouter);
+app.use("/recipe_tag", recipeTagRouter);
+app.use("/recipe_ingredient", recipeIngredientRouter);
+app.use("/meal_plan", mealPlanRouter);
+app.use("/meal_plan_recipe", mealPlanRecipeRouter);
 
-// Get all recipes
-app.get("/recipes", async (req, res) => {
-  try {
-    const result = await pool.query(
-      "SELECT * FROM recipes ORDER BY recipe_id ASC"
-    );
-    res.json(result.rows);
-  } catch (err) {
-    console.error("❌ Fetch failed:", err);
-    // sends the real error message back so you can see it in the browser/network tab
-    res.status(500).send("Failed to fetch recipes: " + err.message);
-  }
-});
-
-app.get('/search', async (req, res) => {
-  const { query, tags } = req.query;
-  
-  try {
-    let sql = 'SELECT * FROM recipes WHERE 1=1';
-    const params = [];
-    let paramIndex = 1;
-
-    if (query) {
-      sql += ` AND (title ILIKE $${paramIndex} OR description ILIKE $${paramIndex + 1})`;
-      params.push(`%${query}%`, `%${query}%`);
-      paramIndex += 2;
-    }
-
-    if (tags) {
-      const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-      if (tagsArray.length > 0) {
-        tagsArray.forEach((tag) => {
-          sql += ` AND (
-            description ILIKE $${paramIndex} 
-            OR skill_level ILIKE $${paramIndex} 
-            OR source_platform ILIKE $${paramIndex}
-          )`;
-          params.push(`%${tag}%`);
-          paramIndex += 1;
-        });
-      }
-    }
-
-    sql += ' ORDER BY recipe_id ASC';
-    const result = await pool.query(sql, params);
-    res.json(result.rows);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Search failed: ' + err.message);
-  }
-});
-
-
-
-
-// Insert recipe
-app.post("/insert", async (req, res) => {
-  console.log("🔔 Insert payload:", req.body);
-  const {
-    creator_id,
-    title,
-    description,
-    cook_time,
-    prep_time,
-    skill_level,
-    source_platform,
-    source_url,
-  } = req.body;
-
-  try {
-    await pool.query(
-      `INSERT INTO recipes (
-        creator_id, title, description, cook_time, prep_time, skill_level, source_platform, source_url
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [
-        creator_id,
-        title,
-        description,
-        cook_time,
-        prep_time,
-        skill_level,
-        source_platform,
-        source_url,
-      ]
-    );
-    console.log("✅ Insert succeeded");
-    res.sendStatus(200);
-  } catch (err) {
-    console.error("❌ Insert failed:", err);
-    res.status(500).send("Insert failed: " + err.message);
-  }
-});
-
-// Delete recipe
-app.post("/delete", async (req, res) => {
-  const { recipe_id } = req.body;
-  try {
-    await pool.query("DELETE FROM recipes WHERE recipe_id = $1", [recipe_id]);
-    res.sendStatus(200);
-  } catch (err) {
-    res.status(500).send("Delete failed: " + err.message);
-  }
-});
-
-// Update recipe (only title + description for now)
-app.post("/update", async (req, res) => {
-  const { recipe_id, title, description } = req.body;
-  try {
-    await pool.query(
-      "UPDATE recipes SET title = $1, description = $2 WHERE recipe_id = $3",
-      [title, description, recipe_id]
-    );
-    res.sendStatus(200);
-  } catch (err) {
-    res.status(500).send("Update failed: " + err.message);
-  }
-});
-
-// Start server
+// start backend server
+defaultPort = 3000;
+const PORT = process.env.PORT || defaultPort;
 app.listen(PORT, () => {
-  console.log(`✅ Backend server running at http://localhost:${PORT}`);
+  console.log(`✅ Backend server running on http://localhost:${PORT}`);
 });
