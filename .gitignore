@@ -56,6 +56,9 @@ frontend/.turbo
 frontend/.vercel
 frontend/.coverage
 frontend/.svelte-kit
+# Todo: Figure out if cypress should be ignored
+frontend/cypress/
+frontend/cypress.config.js
 
 # Backend specific
 backend/.nyc_output/

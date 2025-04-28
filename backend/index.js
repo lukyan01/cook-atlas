@@ -442,7 +442,12 @@ app.delete('/bookmarks', async (req, res) => {
   }
 });
 
+module.exports = app;
+
 // Start server
-app.listen(PORT, () => {
-  console.log(`✅ Backend server running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`✅ Backend server running at http://localhost:${PORT}`);
+  });
+}
