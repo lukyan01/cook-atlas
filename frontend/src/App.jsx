@@ -1,224 +1,200 @@
-import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import PageContainer from './components/layout/PageContainer';
+
+// Pages
+import HomePage from './pages/home/HomePage';
+import RecipesPage from './pages/recipes/RecipesPage';
+import RecipeDetailPage from './pages/recipes/RecipeDetailPage';
+import NewRecipePage from './pages/recipes/NewRecipePage';
+import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage';
+import ProfilePage from './pages/profile/ProfilePage';
+
+// Theme
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#ff5722', // Deep orange
+    },
+    secondary: {
+      main: '#4caf50', // Green
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontWeight: 500,
+    },
+    h2: {
+      fontWeight: 500,
+    },
+    h3: {
+      fontWeight: 500,
+    },
+    h4: {
+      fontWeight: 500,
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
+      },
+    },
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          paddingTop: '1rem',
+          paddingBottom: '1rem',
+          flex: 1,
+        },
+      },
+    },
+    MuiCssBaseline: {
+      styleOverrides: `
+        html, body, #root {
+          height: 100%;
+          width: 100%;
+        }
+        #root {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+        }
+      `,
+    },
+  },
+});
+
+// Protected route component
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  // If still loading auth state, return null
+  if (loading) return null;
+
+  // If not authenticated, redirect to login
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" />;
+  }
+
+  // If authenticated, render children
+  return children;
+};
 
 function App() {
-  const [recipes, setRecipes] = useState([]);
-  const [newRecipe, setNewRecipe] = useState({
-    creator_id: '',
-    title: '',
-    description: '',
-    cook_time: '',
-    prep_time: '',
-    skill_level: '',
-    source_platform: '',
-    source_url: '',
-  });
-
-  const [updateId, setUpdateId] = useState('');
-  const [updateTitle, setUpdateTitle] = useState('');
-  const [updateDescription, setUpdateDescription] = useState('');
-  const [deleteId, setDeleteId] = useState('');
-  const [searchQuery, setSearchQuery] = useState(''); //
-  const [searchTags, setSearchTags] = useState(''); //
-
-
-  const fetchRecipes = async () => {
-    try {
-      // Append a timestamp to bypass cache
-      const res = await fetch(`http://localhost:3000/recipes?timestamp=${Date.now()}`);
-      const data = await res.json();
-      console.log('Fetched recipes:', data);
-      setRecipes(data);
-    } catch (err) {
-      console.error('Error fetching recipes:', err);
-    }
-  };
-
-  useEffect(() => {
-    fetchRecipes();
-  }, []);
-
-  const handleInsert = async () => {
-    try {
-      await fetch('http://localhost:3000/insert', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newRecipe),
-      });
-      alert('Recipe inserted!');
-      fetchRecipes();
-    } catch (err) {
-      console.error('Insert error:', err);
-    }
-  };
-
-  const handleUpdate = async () => {
-    try {
-      await fetch('http://localhost:3000/update', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipe_id: updateId,
-          title: updateTitle,
-          description: updateDescription,
-        }),
-      });
-      alert('Recipe updated!');
-      fetchRecipes();
-    } catch (err) {
-      console.error('Update error:', err);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await fetch('http://localhost:3000/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipe_id: deleteId }),
-      });
-      alert('Recipe deleted!');
-      fetchRecipes();
-    } catch (err) {
-      console.error('Delete error:', err);
-    }
-  };
-
   return (
-    <div style={{ padding: '2rem', fontFamily: 'Arial' }}>
-      <h1>CookAtlas Admin Interface</h1>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Home */}
+            <Route path="/" element={
+              <PageContainer>
+                <HomePage />
+              </PageContainer>
+            } />
 
-      <h2>Search Recipes</h2>
-      <input
-        placeholder="Search text"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        style={{ margin: '5px', padding: '5px', width: '300px' }}
-      />
-      <input
-        placeholder="Tags (comma separated)"
-        value={searchTags}
-        onChange={(e) => setSearchTags(e.target.value)}
-        style={{ margin: '5px', padding: '5px', width: '300px' }}
-      />
-      <button
-        onClick={async () => {
-          try {
-            const params = new URLSearchParams();
-            if (searchQuery) params.append('query', searchQuery);
-            if (searchTags) params.append('tags', searchTags);
-
-            const res = await fetch(`http://localhost:3000/search?${params.toString()}`);
-            const data = await res.json();
-            console.log('Search results:', data);
-            setRecipes(data);
-          } catch (err) {
-            console.error('Search error:', err);
-          }
-        }}
-        style={{ marginTop: '10px' }}
-      >
-        Search
-      </button>
-      <button
-        onClick={fetchRecipes}
-        style={{ marginTop: '10px', marginLeft: '10px' }}
-      >
-        Reset
-      </button>
-
-      <h2>Insert New Recipe</h2>
-      {Object.keys(newRecipe).map((field) => (
-        <div key={field}>
-          <input
-            placeholder={field.replace('_', ' ')}
-            value={newRecipe[field]}
-            onChange={(e) =>
-              setNewRecipe({ ...newRecipe, [field]: e.target.value })
-            }
-            style={{ margin: '5px', padding: '5px', width: '300px' }}
-          />
-        </div>
-      ))}
-      <button onClick={handleInsert} style={{ marginTop: '10px' }}>
-        Insert
-      </button>
-
-      <h2>Update Recipe</h2>
-      <input
-        placeholder="Recipe ID"
-        value={updateId}
-        onChange={(e) => setUpdateId(e.target.value)}
-        style={{ margin: '5px' }}
-      />
-      <input
-        placeholder="New Title"
-        value={updateTitle}
-        onChange={(e) => setUpdateTitle(e.target.value)}
-        style={{ margin: '5px' }}
-      />
-      <input
-        placeholder="New Description"
-        value={updateDescription}
-        onChange={(e) => setUpdateDescription(e.target.value)}
-        style={{ margin: '5px' }}
-      />
-      <button onClick={handleUpdate} style={{ marginTop: '10px' }}>
-        Update
-      </button>
-
-      <h2>Delete Recipe</h2>
-      <input
-        placeholder="Recipe ID"
-        value={deleteId}
-        onChange={(e) => setDeleteId(e.target.value)}
-        style={{ margin: '5px' }}
-      />
-      <button onClick={handleDelete}>Delete</button>
-
-      <h2>All Recipes</h2>
-      <table
-        border="1"
-        cellPadding="8"
-        style={{ marginTop: '20px', borderCollapse: 'collapse' }}
-      >
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Creator</th>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Cook Time</th>
-            <th>Prep Time</th>
-            <th>Skill Level</th>
-            <th>Source Platform</th>
-            <th>Source URL</th>
-          </tr>
-        </thead>
-        <tbody>
-          {recipes.map((r) => (
-            <tr key={r.recipe_id}>
-              <td>{r.recipe_id}</td>
-              <td>{r.creator_id}</td>
-              <td>{r.title}</td>
-              <td>{r.description}</td>
-              <td>{r.cook_time}</td>
-              <td>{r.prep_time}</td>
-              <td>{r.skill_level}</td>
-              <td>{r.source_platform}</td>
-              <td>
-                <a href={r.source_url} target="_blank" rel="noreferrer">
-                  link
-                </a>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Debug: show raw JSON */}
-      <h2>Debug JSON Output</h2>
-      <pre>{JSON.stringify(recipes, null, 2)}</pre>
-    </div>
+            <Route path="/recipes/search" element={
+              <PageContainer>
+                <RecipesPage />
+              </PageContainer>
+            } />
+            
+            <Route path="/recipes/new" element={
+              <ProtectedRoute>
+                <PageContainer>
+                  <NewRecipePage />
+                </PageContainer>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/recipes/:recipeId" element={
+              <PageContainer>
+                <RecipeDetailPage />
+              </PageContainer>
+            } />
+            
+            <Route path="/recipes" element={
+              <PageContainer>
+                <RecipesPage />
+              </PageContainer>
+            } />
+            
+            {/* Auth Routes */}
+            <Route path="/login" element={
+              <PageContainer maxWidth="sm">
+                <LoginPage />
+              </PageContainer>
+            } />
+            
+            <Route path="/register" element={
+              <PageContainer maxWidth="sm">
+                <RegisterPage />
+              </PageContainer>
+            } />
+            
+            {/* Profile Routes */}
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <PageContainer>
+                  <ProfilePage />
+                </PageContainer>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/bookmarks" element={
+              <ProtectedRoute>
+                <PageContainer>
+                  <ProfilePage />
+                </PageContainer>
+              </ProtectedRoute>
+            } />
+            
+            {/* Placeholder routes for future features */}
+            <Route path="/meal-plans" element={
+              <PageContainer>
+                <div>
+                  <h2>Meal Plans</h2>
+                  <p>This feature is coming soon!</p>
+                </div>
+              </PageContainer>
+            } />
+            
+            <Route path="/shopping-lists" element={
+              <PageContainer>
+                <div>
+                  <h2>Shopping Lists</h2>
+                  <p>This feature is coming soon!</p>
+                </div>
+              </PageContainer>
+            } />
+            
+            {/* Fallback route */}
+            <Route path="*" element={
+              <PageContainer>
+                <div>
+                  <h2>404 Page Not Found</h2>
+                  <p>The page you're looking for doesn't exist.</p>
+                </div>
+              </PageContainer>
+            } />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
