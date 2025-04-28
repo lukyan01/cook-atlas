@@ -2,13 +2,12 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.4
--- Dumped by pg_dump version 17.4
+-- Dumped from database version 14.17 (Ubuntu 14.17-0ubuntu0.22.04.1)
+-- Dumped by pg_dump version 14.17 (Ubuntu 14.17-0ubuntu0.22.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -47,7 +46,7 @@ CREATE SEQUENCE public.bookmark_bookmark_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.bookmark_bookmark_id_seq OWNER TO postgres;
+ALTER TABLE public.bookmark_bookmark_id_seq OWNER TO postgres;
 
 --
 -- Name: bookmark_bookmark_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -84,7 +83,7 @@ CREATE SEQUENCE public.engagement_engagement_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.engagement_engagement_id_seq OWNER TO postgres;
+ALTER TABLE public.engagement_engagement_id_seq OWNER TO postgres;
 
 --
 -- Name: engagement_engagement_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -118,7 +117,7 @@ CREATE SEQUENCE public.ingredient_ingredient_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.ingredient_ingredient_id_seq OWNER TO postgres;
+ALTER TABLE public.ingredient_ingredient_id_seq OWNER TO postgres;
 
 --
 -- Name: ingredient_ingredient_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -154,7 +153,7 @@ CREATE SEQUENCE public.meal_plan_meal_plan_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.meal_plan_meal_plan_id_seq OWNER TO postgres;
+ALTER TABLE public.meal_plan_meal_plan_id_seq OWNER TO postgres;
 
 --
 -- Name: meal_plan_meal_plan_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -205,7 +204,7 @@ CREATE SEQUENCE public.rating_rating_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.rating_rating_id_seq OWNER TO postgres;
+ALTER TABLE public.rating_rating_id_seq OWNER TO postgres;
 
 --
 -- Name: rating_rating_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -253,7 +252,9 @@ CREATE TABLE public.recipes (
     skill_level character varying(20) NOT NULL,
     source_platform character varying(50),
     source_url text,
-    CONSTRAINT recipes_skill_level_check CHECK (((skill_level)::text = ANY ((ARRAY['Beginner'::character varying, 'Intermediate'::character varying, 'Advanced'::character varying])::text[])))
+    image_url character varying(512),
+    instructions_md text,
+    CONSTRAINT recipes_skill_level_check CHECK (((skill_level)::text = ANY (ARRAY[('Beginner'::character varying)::text, ('Intermediate'::character varying)::text, ('Advanced'::character varying)::text])))
 );
 
 
@@ -272,7 +273,7 @@ CREATE SEQUENCE public.recipes_recipe_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.recipes_recipe_id_seq OWNER TO postgres;
+ALTER TABLE public.recipes_recipe_id_seq OWNER TO postgres;
 
 --
 -- Name: recipes_recipe_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -318,7 +319,7 @@ CREATE SEQUENCE public.shopping_list_shopping_list_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.shopping_list_shopping_list_id_seq OWNER TO postgres;
+ALTER TABLE public.shopping_list_shopping_list_id_seq OWNER TO postgres;
 
 --
 -- Name: shopping_list_shopping_list_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -352,7 +353,7 @@ CREATE SEQUENCE public.tag_tag_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.tag_tag_id_seq OWNER TO postgres;
+ALTER TABLE public.tag_tag_id_seq OWNER TO postgres;
 
 --
 -- Name: tag_tag_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -371,7 +372,7 @@ CREATE TABLE public.users (
     email character varying(100) NOT NULL,
     password character varying(100) NOT NULL,
     role character varying(20) NOT NULL,
-    CONSTRAINT users_role_check CHECK (((role)::text = ANY ((ARRAY['General User'::character varying, 'Registered User'::character varying, 'Recipe Creator'::character varying, 'Administrator'::character varying])::text[])))
+    CONSTRAINT users_role_check CHECK (((role)::text = ANY (ARRAY[('General User'::character varying)::text, ('Registered User'::character varying)::text, ('Recipe Creator'::character varying)::text, ('Administrator'::character varying)::text])))
 );
 
 
@@ -390,7 +391,7 @@ CREATE SEQUENCE public.users_user_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.users_user_id_seq OWNER TO postgres;
+ALTER TABLE public.users_user_id_seq OWNER TO postgres;
 
 --
 -- Name: users_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -467,7 +468,6 @@ ALTER TABLE ONLY public.users ALTER COLUMN user_id SET DEFAULT nextval('public.u
 --
 
 COPY public.bookmark (bookmark_id, user_id, recipe_id) FROM stdin;
-1	1	1
 2	2	2
 3	3	3
 4	4	4
@@ -487,6 +487,7 @@ COPY public.bookmark (bookmark_id, user_id, recipe_id) FROM stdin;
 18	18	18
 19	19	19
 20	20	20
+23	1	3
 \.
 
 
@@ -495,7 +496,6 @@ COPY public.bookmark (bookmark_id, user_id, recipe_id) FROM stdin;
 --
 
 COPY public.engagement (engagement_id, user_id, recipe_id, type, created_at) FROM stdin;
-1	1	1	View	2025-03-28 18:33:50.207628
 2	2	2	Like	2025-03-28 18:33:50.207628
 3	3	3	Comment	2025-03-28 18:33:50.207628
 4	4	4	View	2025-03-28 18:33:50.207628
@@ -579,7 +579,6 @@ COPY public.meal_plan (meal_plan_id, user_id, name, description) FROM stdin;
 --
 
 COPY public.meal_plan_recipe (meal_plan_id, recipe_id) FROM stdin;
-1	1
 2	2
 3	3
 4	4
@@ -607,7 +606,6 @@ COPY public.meal_plan_recipe (meal_plan_id, recipe_id) FROM stdin;
 --
 
 COPY public.rating (rating_id, user_id, recipe_id, score, review, created_at) FROM stdin;
-1	1	1	5	Excellent recipe!	2025-03-28 18:33:09.114673
 2	2	2	4	Pretty good.	2025-03-28 18:33:09.114673
 3	3	3	5	Amazing flavor!	2025-03-28 18:33:09.114673
 4	4	4	3	Not bad.	2025-03-28 18:33:09.114673
@@ -635,7 +633,6 @@ COPY public.rating (rating_id, user_id, recipe_id, score, review, created_at) FR
 --
 
 COPY public.recipe_ingredient (recipe_id, ingredient_id, quantity) FROM stdin;
-1	1	200g
 2	2	300g
 3	3	100g
 4	4	150g
@@ -663,7 +660,6 @@ COPY public.recipe_ingredient (recipe_id, ingredient_id, quantity) FROM stdin;
 --
 
 COPY public.recipe_tag (recipe_id, tag_id) FROM stdin;
-1	12
 2	16
 3	14
 4	8
@@ -690,27 +686,27 @@ COPY public.recipe_tag (recipe_id, tag_id) FROM stdin;
 -- Data for Name: recipes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.recipes (recipe_id, creator_id, title, description, cook_time, prep_time, skill_level, source_platform, source_url) FROM stdin;
-1	3	Spaghetti Bolognese	Rich and hearty Italian pasta.	60	15	Intermediate	Blog	https://example.com/spaghetti
-2	3	Chicken Salad	Healthy chicken salad.	0	10	Beginner	Blog	https://example.com/chicken-salad
-3	6	Beef Stew	Slow-cooked beef stew.	120	30	Advanced	YouTube	https://youtube.com/beef-stew
-4	9	Pancakes	Fluffy pancakes.	20	10	Beginner	Instagram	https://instagram.com/pancakes
-5	3	Tacos	Mexican street tacos.	30	20	Intermediate	Blog	https://example.com/tacos
-6	6	Chocolate Cake	Rich chocolate cake.	90	20	Advanced	Website	https://example.com/chocolate-cake
-7	9	Omelette	Classic breakfast omelette.	10	5	Beginner	YouTube	https://youtube.com/omelette
-8	3	Pizza	Homemade Italian pizza.	40	20	Intermediate	Blog	https://example.com/pizza
-9	9	Burgers	Juicy beef burgers.	30	15	Intermediate	Instagram	https://instagram.com/burgers
-10	3	Apple Pie	Traditional apple pie.	75	30	Advanced	Blog	https://example.com/apple-pie
-11	6	Fried Rice	Chinese-style fried rice.	20	10	Beginner	Website	https://example.com/fried-rice
-12	9	Lasagna	Hearty meat lasagna.	90	40	Advanced	YouTube	https://youtube.com/lasagna
-13	9	Chicken Curry	Spicy chicken curry.	60	20	Intermediate	Instagram	https://instagram.com/chicken-curry
-14	3	Steak	Perfectly cooked steak.	15	10	Advanced	Blog	https://example.com/steak
-15	6	Sushi	Traditional sushi rolls.	60	30	Advanced	YouTube	https://youtube.com/sushi
-16	9	Toast	Simple buttered toast.	5	2	Beginner	Instagram	https://instagram.com/toast
-17	3	Salmon	Grilled salmon fillet.	25	10	Intermediate	Blog	https://example.com/salmon
-18	6	Brownies	Chewy chocolate brownies.	45	20	Intermediate	Website	https://example.com/brownies
-19	9	Soup	Vegetable soup.	40	20	Beginner	YouTube	https://youtube.com/soup
-20	3	Cheesecake	Creamy cheesecake.	90	30	Advanced	Blog	https://example.com/cheesecake
+COPY public.recipes (recipe_id, creator_id, title, description, cook_time, prep_time, skill_level, source_platform, source_url, image_url, instructions_md) FROM stdin;
+2	3	Chicken Salad	Healthy chicken salad.	0	10	Beginner	Blog	https://example.com/chicken-salad	https://images.unsplash.com/photo-1604909052743-94e838986d24?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2hpY2tlbiUyMHNhbGFkfGVufDB8fDB8fHwy	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Chicken Salad**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Chicken Salad** and enjoy!\n
+7	9	Omelette	Classic breakfast omelette.	10	5	Beginner	YouTube	https://youtube.com/omelette	https://images.unsplash.com/photo-1677844592730-ce9c936d8f1a?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8b21sZXR0ZXxlbnwwfHwwfHx8Mg%3D%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Omelette**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Omelette** and enjoy!\n
+9	9	Burgers	Juicy beef burgers.	30	15	Intermediate	Instagram	https://instagram.com/burgers	https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=2499&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Burgers**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Burgers** and enjoy!\n
+5	3	Tacos	Mexican street tacos.	30	20	Intermediate	Blog	https://example.com/tacos	https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Tacos**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Tacos** and enjoy!\n
+6	6	Chocolate Cake	Rich chocolate cake.	90	20	Advanced	Website	https://example.com/chocolate-cake	https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2hvY29sYXRlJTIwY2FrZXxlbnwwfHwwfHx8Mg%3D%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Chocolate Cake**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Chocolate Cake** and enjoy!\n
+3	6	Beef Stew	Slow-cooked beef stew.	120	30	Advanced	YouTube	https://youtube.com/beef-stew	https://images.unsplash.com/photo-1604908177453-7462950a6a3b?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YmVlZiUyMHN0ZXd8ZW58MHx8MHx8fDI%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Beef Stew**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Beef Stew** and enjoy!\n
+10	3	Apple Pie	Traditional apple pie.	75	30	Advanced	Blog	https://example.com/apple-pie	https://images.unsplash.com/photo-1621743478914-cc8a86d7e7b5?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Apple Pie**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Apple Pie** and enjoy!\n
+8	3	Pizza	Homemade Italian pizza.	40	20	Intermediate	Blog	https://example.com/pizza	https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGl6emF8ZW58MHx8MHx8fDI%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Pizza**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Pizza** and enjoy!\n
+11	6	Fried Rice	Chinese-style fried rice.	20	10	Beginner	Website	https://example.com/fried-rice	https://images.unsplash.com/photo-1603133872878-684f208fb84b?q=80&w=2525&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Fried Rice**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Fried Rice** and enjoy!\n
+13	9	Chicken Curry	Spicy chicken curry.	60	20	Intermediate	Instagram	https://instagram.com/chicken-curry	https://images.unsplash.com/photo-1631292784640-2b24be784d5d?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2hpY2tlbiUyMGN1cnJ5fGVufDB8fDB8fHwy	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Chicken Curry**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Chicken Curry** and enjoy!\n
+12	9	Lasagna	Hearty meat lasagna.	90	40	Advanced	YouTube	https://youtube.com/lasagna	https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bGFzYWduYXxlbnwwfHwwfHx8Mg%3D%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Lasagna**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Lasagna** and enjoy!\n
+14	3	Steak	Perfectly cooked steak.	15	10	Advanced	Blog	https://example.com/steak	https://images.unsplash.com/photo-1504973960431-1c467e159aa4?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8c3RlYWt8ZW58MHx8MHx8fDI%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Steak**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Steak** and enjoy!\n
+19	9	Soup	Vegetable soup.	40	20	Beginner	YouTube	https://youtube.com/soup	https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c291cHxlbnwwfHwwfHx8Mg%3D%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Soup**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Soup** and enjoy!\n
+17	3	Salmon	Grilled salmon fillet.	25	10	Intermediate	Blog	https://example.com/salmon	https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2FsbW9ufGVufDB8fDB8fHwy	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Salmon**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Salmon** and enjoy!\n
+16	9	Toast	Simple buttered toast.	5	2	Beginner	Instagram	https://instagram.com/toast	https://images.unsplash.com/photo-1612827788868-c8632040ab64?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dG9hc3R8ZW58MHx8MHx8fDI%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Toast**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Toast** and enjoy!\n
+15	6	Sushi	Traditional sushi rolls.	60	30	Advanced	YouTube	https://youtube.com/sushi	https://images.unsplash.com/photo-1553621042-f6e147245754?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8c3VzaGl8ZW58MHx8MHx8fDI%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Sushi**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Sushi** and enjoy!\n
+18	6	Brownies	Chewy chocolate brownies.	45	20	Intermediate	Website	https://example.com/brownies	https://images.unsplash.com/photo-1515037893149-de7f840978e2?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YnJvd25pZXN8ZW58MHx8MHx8fDI%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Brownies**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Brownies** and enjoy!\n
+20	3	Cheesecake	Creamy cheesecake.	90	30	Advanced	Blog	https://example.com/cheesecake	https://images.unsplash.com/photo-1578775887804-699de7086ff9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2hlZXNjYWtlfGVufDB8fDB8fHwy	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Cheesecake**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Cheesecake** and enjoy!\n
+21	21	Cheese Buns	Buns wit cheese	10	5	Beginner	YouTube	https://www.youtube.com/shorts/zaBO5RBU15s	https://images.unsplash.com/photo-1745031601360-b189f522ea90?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2hlZXNlJTIwYnVuc3xlbnwwfHwwfHx8Mg%3D%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Cheese Buns**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Cheese Buns** and enjoy!\n
+4	9	Pancakes	Fluffy pancakes.	20	10	Beginner	Instagram	https://instagram.com/pancakes	https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFuY2FrZXN8ZW58MHx8MHx8fDI%3D	\n#### Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Pancakes**\n\n#### Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Pancakes** and enjoy!\n
 \.
 
 
@@ -823,6 +819,8 @@ COPY public.users (user_id, username, email, password, role) FROM stdin;
 18	user18	user18@example.com	password18	Administrator
 19	user19	user19@example.com	password19	General User
 20	user20	user20@example.com	password20	Registered User
+21	asterope	newemail@gmail.com	adminbaby	Registered User
+71	asteropee	lukyan@vt.edu	$2b$10$tG4HlCDWm2Lgqhg/1Eh2SO1.Am6sCqPdiUK7rssHzr8YYu8RRhh2i	Recipe Creator
 \.
 
 
@@ -830,7 +828,7 @@ COPY public.users (user_id, username, email, password, role) FROM stdin;
 -- Name: bookmark_bookmark_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.bookmark_bookmark_id_seq', 20, true);
+SELECT pg_catalog.setval('public.bookmark_bookmark_id_seq', 35, true);
 
 
 --
@@ -865,7 +863,7 @@ SELECT pg_catalog.setval('public.rating_rating_id_seq', 20, true);
 -- Name: recipes_recipe_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.recipes_recipe_id_seq', 20, true);
+SELECT pg_catalog.setval('public.recipes_recipe_id_seq', 60, true);
 
 
 --
@@ -886,7 +884,7 @@ SELECT pg_catalog.setval('public.tag_tag_id_seq', 20, true);
 -- Name: users_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_user_id_seq', 20, true);
+SELECT pg_catalog.setval('public.users_user_id_seq', 71, true);
 
 
 --
