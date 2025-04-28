@@ -1,20 +1,9 @@
-import {useState, useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {
-    Box,
-    Typography,
-    Button,
-    Grid,
-    Paper,
-    InputBase,
-    IconButton,
-    Divider,
-    Container,
-} from '@mui/material';
+import {Box, Button, Container, Divider, Grid, IconButton, InputBase, Paper, Typography,} from '@mui/material';
 import {Search as SearchIcon} from '@mui/icons-material';
 import RecipeList from '../../components/recipes/RecipeList';
 import {recipeApi} from '../../services/api';
-import logoImg from '../../assets/cook-atlas_logo.png';
 
 const featuredCategories = [
     {name: 'Quick & Easy', tag: 'quick'},
@@ -175,7 +164,7 @@ const HomePage = () => {
                 </Box>
                 <Box sx={{backgroundColor: (theme) => theme.palette.background.default}}>
                     <RecipeList
-                        recipes={recentRecipes.slice(0, 6)} // Show first 6 recipes
+                        recipes={recentRecipes.slice(0, 5)} // Show first 6 recipes
                         loading={loading}
                         error={error}
                     />

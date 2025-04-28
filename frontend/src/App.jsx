@@ -1,7 +1,7 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { ThemeProvider as CustomThemeProvider, useTheme } from './context/ThemeContext';
+import {BrowserRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
+import {CssBaseline, ThemeProvider} from '@mui/material';
+import {AuthProvider, useAuth} from './context/AuthContext';
+import {ThemeProvider as CustomThemeProvider, useTheme} from './context/ThemeContext';
 import PageContainer from './components/layout/PageContainer';
 
 // Pages
@@ -14,134 +14,134 @@ import RegisterPage from './pages/auth/RegisterPage';
 import ProfilePage from './pages/profile/ProfilePage';
 
 // Protected route component
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+const ProtectedRoute = ({children}) => {
+    const {isAuthenticated, loading} = useAuth();
 
-  // If still loading auth state, return null
-  if (loading) return null;
+    // If still loading auth state, return null
+    if (loading) return null;
 
-  // If not authenticated, redirect to login
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" />;
-  }
+    // If not authenticated, redirect to login
+    if (!isAuthenticated()) {
+        return <Navigate to="/login"/>;
+    }
 
-  // If authenticated, render children
-  return children;
+    // If authenticated, render children
+    return children;
 };
 
 function AppContent() {
-  const { theme } = useTheme();
+    const {theme} = useTheme();
 
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Routes>
-          {/* Home */}
-          <Route path="/" element={
-            <PageContainer>
-              <HomePage />
-            </PageContainer>
-          } />
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline/>
+            <Router>
+                <Routes>
+                    {/* Home */}
+                    <Route path="/" element={
+                        <PageContainer>
+                            <HomePage/>
+                        </PageContainer>
+                    }/>
 
-            <Route path="/recipes/search" element={
-              <PageContainer>
-                <RecipesPage />
-              </PageContainer>
-            } />
-            
-            <Route path="/recipes/new" element={
-              <ProtectedRoute>
-                <PageContainer>
-                  <NewRecipePage />
-                </PageContainer>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/recipes/:recipeId" element={
-              <PageContainer>
-                <RecipeDetailPage />
-              </PageContainer>
-            } />
-            
-            <Route path="/recipes" element={
-              <PageContainer>
-                <RecipesPage />
-              </PageContainer>
-            } />
-            
-            {/* Auth Routes */}
-            <Route path="/login" element={
-              <PageContainer maxWidth="sm">
-                <LoginPage />
-              </PageContainer>
-            } />
-            
-            <Route path="/register" element={
-              <PageContainer maxWidth="sm">
-                <RegisterPage />
-              </PageContainer>
-            } />
-            
-            {/* Profile Routes */}
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <PageContainer>
-                  <ProfilePage />
-                </PageContainer>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/bookmarks" element={
-              <ProtectedRoute>
-                <PageContainer>
-                  <ProfilePage />
-                </PageContainer>
-              </ProtectedRoute>
-            } />
-            
-            {/* Placeholder routes for future features */}
-            <Route path="/meal-plans" element={
-              <PageContainer>
-                <div>
-                  <h2>Meal Plans</h2>
-                  <p>This feature is coming soon!</p>
-                </div>
-              </PageContainer>
-            } />
-            
-            <Route path="/shopping-lists" element={
-              <PageContainer>
-                <div>
-                  <h2>Shopping Lists</h2>
-                  <p>This feature is coming soon!</p>
-                </div>
-              </PageContainer>
-            } />
-            
-            {/* Fallback route */}
-            <Route path="*" element={
-              <PageContainer>
-                <div>
-                  <h2>404 Page Not Found</h2>
-                  <p>The page you're looking for doesn't exist.</p>
-                </div>
-              </PageContainer>
-            } />
-          </Routes>
-        </Router>
-      </ThemeProvider>
+                    <Route path="/recipes/search" element={
+                        <PageContainer>
+                            <RecipesPage/>
+                        </PageContainer>
+                    }/>
+
+                    <Route path="/recipes/new" element={
+                        <ProtectedRoute>
+                            <PageContainer>
+                                <NewRecipePage/>
+                            </PageContainer>
+                        </ProtectedRoute>
+                    }/>
+
+                    <Route path="/recipes/:recipeId" element={
+                        <PageContainer>
+                            <RecipeDetailPage/>
+                        </PageContainer>
+                    }/>
+
+                    <Route path="/recipes" element={
+                        <PageContainer>
+                            <RecipesPage/>
+                        </PageContainer>
+                    }/>
+
+                    {/* Auth Routes */}
+                    <Route path="/login" element={
+                        <PageContainer maxWidth="sm">
+                            <LoginPage/>
+                        </PageContainer>
+                    }/>
+
+                    <Route path="/register" element={
+                        <PageContainer maxWidth="sm">
+                            <RegisterPage/>
+                        </PageContainer>
+                    }/>
+
+                    {/* Profile Routes */}
+                    <Route path="/profile" element={
+                        <ProtectedRoute>
+                            <PageContainer>
+                                <ProfilePage/>
+                            </PageContainer>
+                        </ProtectedRoute>
+                    }/>
+
+                    <Route path="/bookmarks" element={
+                        <ProtectedRoute>
+                            <PageContainer>
+                                <ProfilePage/>
+                            </PageContainer>
+                        </ProtectedRoute>
+                    }/>
+
+                    {/* Placeholder routes for future features */}
+                    <Route path="/meal-plans" element={
+                        <PageContainer>
+                            <div>
+                                <h2>Meal Plans</h2>
+                                <p>This feature is coming soon!</p>
+                            </div>
+                        </PageContainer>
+                    }/>
+
+                    <Route path="/shopping-lists" element={
+                        <PageContainer>
+                            <div>
+                                <h2>Shopping Lists</h2>
+                                <p>This feature is coming soon!</p>
+                            </div>
+                        </PageContainer>
+                    }/>
+
+                    {/* Fallback route */}
+                    <Route path="*" element={
+                        <PageContainer>
+                            <div>
+                                <h2>404 Page Not Found</h2>
+                                <p>The page you're looking for doesn't exist.</p>
+                            </div>
+                        </PageContainer>
+                    }/>
+                </Routes>
+            </Router>
+        </ThemeProvider>
     );
 }
 
 function App() {
-  return (
-    <CustomThemeProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </CustomThemeProvider>
-  );
+    return (
+        <CustomThemeProvider>
+            <AuthProvider>
+                <AppContent/>
+            </AuthProvider>
+        </CustomThemeProvider>
+    );
 }
 
 export default App;
