@@ -1,20 +1,27 @@
 const request = require('supertest');
-const app = require('./setupTests');
+const app = require('../index');
 const pool = require('../db');
+const bcrypt = require('bcrypt');
 
 describe('Authentication API', () => {
     let testUser;
+    const testPassword = 'password123';
+    let hashedPassword;
 
     // Setup test data
     beforeAll(async () => {
         // Clear test users if they exist
         await pool.query('DELETE FROM users WHERE email = $1', ['test@example.com']);
+        await pool.query('DELETE FROM users WHERE email = $1', ['testupdated@example.com']);
+
+        // Create hashed password for tests
+        hashedPassword = await bcrypt.hash(testPassword, 10);
     });
 
     afterAll(async () => {
         // Clean up
         await pool.query('DELETE FROM users WHERE email = $1', ['test@example.com']);
-        await pool.query('DELETE FROM users WHERE email = $1', ['testupdated@example.com']);
+        await pool.end();
     });
 
     describe('POST /auth/register', () => {
@@ -24,7 +31,7 @@ describe('Authentication API', () => {
                 .send({
                     username: 'testuser',
                     email: 'test@example.com',
-                    password: 'password123',
+                    password: testPassword,
                     role: 'Registered User'
                 });
 
@@ -43,7 +50,7 @@ describe('Authentication API', () => {
                 .send({
                     username: 'testuser2',
                     email: 'test@example.com',
-                    password: 'password123',
+                    password: testPassword,
                     role: 'Registered User'
                 });
 
@@ -52,13 +59,29 @@ describe('Authentication API', () => {
             expect(res.body.message).toContain('Email already in use');
         });
 
+        it('should reject registration with weak passwords', async () => {
+            const res = await request(app)
+                .post('/auth/register')
+                .send({
+                    username: 'testuser2',
+                    email: 'test21@example.com',
+                    password: '123',
+                    role: 'Registered User'
+                });
+
+            expect(res.statusCode).toBe(400);
+            expect(res.body).toHaveProperty('message');
+            expect(res.body.message).toContain('Password must be at least 8 characters');
+        });
+
+
         it('should reject registration with duplicate username', async () => {
             const res = await request(app)
                 .post('/auth/register')
                 .send({
                     username: 'testuser',
                     email: 'test2@example.com',
-                    password: 'password123',
+                    password: testPassword,
                     role: 'Registered User'
                 });
 
@@ -72,7 +95,7 @@ describe('Authentication API', () => {
                 .post('/auth/register')
                 .send({
                     email: 'missing@example.com',
-                    password: 'password123'
+                    password: testPassword
                 });
 
             expect(res.statusCode).toBe(400);
@@ -83,30 +106,48 @@ describe('Authentication API', () => {
 
     describe('POST /auth/login', () => {
         it('should authenticate user with valid credentials', async () => {
+            // Insert test user with known hashed password for login test
+            const userResult = await pool.query(
+                'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING user_id, username, email, role, password',
+                ['loginuser', 'loginuser@example.com', hashedPassword, 'Registered User']
+            );
+
             const res = await request(app)
                 .post('/auth/login')
                 .send({
-                    email: 'test@example.com',
-                    password: 'password123'
+                    email: 'loginuser@example.com',
+                    password: testPassword
                 });
 
             expect(res.statusCode).toBe(200);
             expect(res.body).toHaveProperty('user_id');
-            expect(res.body).toHaveProperty('username', 'testuser');
-            expect(res.body).toHaveProperty('email', 'test@example.com');
+            expect(res.body).toHaveProperty('username', 'loginuser');
+            expect(res.body).toHaveProperty('email', 'loginuser@example.com');
+
+            // Clean up this test user
+            await pool.query('DELETE FROM users WHERE email = $1', ['loginuser@example.com']);
         });
 
         it('should reject login with invalid password', async () => {
+            // Insert test user with known hashed password
+            const userResult = await pool.query(
+                'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING user_id, username, email, role',
+                ['badpassuser', 'badpassuser@example.com', hashedPassword, 'Registered User']
+            );
+
             const res = await request(app)
                 .post('/auth/login')
                 .send({
-                    email: 'test@example.com',
+                    email: 'badpassuser@example.com',
                     password: 'wrongpassword'
                 });
 
             expect(res.statusCode).toBe(401);
             expect(res.body).toHaveProperty('message');
             expect(res.body.message).toContain('Invalid credentials');
+
+            // Clean up this test user
+            await pool.query('DELETE FROM users WHERE email = $1', ['badpassuser@example.com']);
         });
 
         it('should reject login with non-existent email', async () => {
@@ -114,7 +155,7 @@ describe('Authentication API', () => {
                 .post('/auth/login')
                 .send({
                     email: 'nonexistent@example.com',
-                    password: 'password123'
+                    password: testPassword
                 });
 
             expect(res.statusCode).toBe(401);
