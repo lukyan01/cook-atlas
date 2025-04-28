@@ -188,8 +188,8 @@ const RecipesPage = () => {
                 {recipes.length} {recipes.length === 1 ? 'recipe' : 'recipes'} found
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
-              <FormControl sx={{ width: { xs: '100%', sm: 200 } }} size="small">
+            <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'left' } }}>
+              <FormControl sx={{ width: { xs: '100%', sm: 175 } }} size="small">
                 <InputLabel id="sort-select-label">Sort by</InputLabel>
                 <Select
                   labelId="sort-select-label"

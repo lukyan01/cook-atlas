@@ -205,8 +205,7 @@ const RecipeDetailPage = () => {
     }
   };
 
-  // Mock ingredients and instructions
-  // In a real app, these would come from the API
+  // TODO: Replace with actual ingredients and instructions from the recipe
   const mockIngredients = [
     '2 tablespoons olive oil',
     '1 onion, chopped',
