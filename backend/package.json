@@ -1,11 +1,15 @@
 {
   "name": "cookatlas",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
-    "test": "NODE_ENV=test jest",
-    "test:watch": "NODE_ENV=test jest --watch",
-    "test:coverage": "NODE_ENV=test jest --coverage"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "NODE_ENV=test jest --runInBand --silent",
+    "test:verbose": "NODE_ENV=test DEBUG=true jest --runInBand",
+    "test:watch": "NODE_ENV=test jest --watch --runInBand --silent",
+    "test:coverage": "NODE_ENV=test jest --coverage --runInBand --silent",
+    "test:debug": "NODE_ENV=test DEBUG=true jest --runInBand --detectOpenHandles"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +24,7 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "nodemon": "^3.1.0",
     "supertest": "^7.1.0"
   }
 }

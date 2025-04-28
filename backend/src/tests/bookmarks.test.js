@@ -1,7 +1,8 @@
 // tests/bookmarks.test.js
 const request = require('supertest');
-const app = require('../index');
-const pool = require('../db');
+const app = require('../app');
+const {getPool} = require('../config/db.config');
+const bcrypt = require('bcrypt');
 
 describe('Bookmarks API', () => {
     let testUser;
@@ -9,19 +10,20 @@ describe('Bookmarks API', () => {
 
     // Setup test data
     beforeAll(async () => {
-        // Create test user
-        const userResult = await pool.query(
+        // Create test user with hashed password
+        const hashedPassword = await bcrypt.hash('password123', 10);
+        const userResult = await getPool().query(
             'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *',
-            ['bookmarkuser', 'bookmark@example.com', 'password123', 'Registered User']
+            ['bookmarkuser', 'bookmark@example.com', hashedPassword, 'Registered User']
         );
 
         testUser = userResult.rows[0];
 
         // Create test recipe
-        const recipeResult = await pool.query(
-            `INSERT INTO recipes (
-        creator_id, title, description, cook_time, prep_time, skill_level
-      ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        const recipeResult = await getPool().query(
+            `INSERT INTO recipes (creator_id, title, description, cook_time, prep_time, skill_level)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             RETURNING *`,
             [
                 testUser.user_id,
                 'Bookmark Test Recipe',
@@ -37,10 +39,9 @@ describe('Bookmarks API', () => {
 
     afterAll(async () => {
         // Clean up
-        await pool.query('DELETE FROM bookmark WHERE user_id = $1', [testUser.user_id]);
-        await pool.query('DELETE FROM recipes WHERE creator_id = $1', [testUser.user_id]);
-        await pool.query('DELETE FROM users WHERE user_id = $1', [testUser.user_id]);
-        await pool.end();
+        await getPool().query('DELETE FROM bookmark WHERE user_id = $1', [testUser.user_id]);
+        await getPool().query('DELETE FROM recipes WHERE creator_id = $1', [testUser.user_id]);
+        await getPool().query('DELETE FROM users WHERE user_id = $1', [testUser.user_id]);
     });
 
     describe('POST /bookmarks', () => {
@@ -136,9 +137,10 @@ describe('Bookmarks API', () => {
 
         it('should return empty array for user with no bookmarks', async () => {
             // Create a new user with no bookmarks
-            const newUserResult = await pool.query(
+            const nobookmarksPassword = await bcrypt.hash('password123', 10);
+            const newUserResult = await getPool().query(
                 'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *',
-                ['nobookmarks', 'nobookmarks@example.com', 'password123', 'Registered User']
+                ['nobookmarks', 'nobookmarks@example.com', nobookmarksPassword, 'Registered User']
             );
 
             const newUser = newUserResult.rows[0];
@@ -151,7 +153,7 @@ describe('Bookmarks API', () => {
             expect(res.body.length).toBe(0);
 
             // Clean up
-            await pool.query('DELETE FROM users WHERE user_id = $1', [newUser.user_id]);
+            await getPool().query('DELETE FROM users WHERE user_id = $1', [newUser.user_id]);
         });
     });
 

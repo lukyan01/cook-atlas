@@ -1,13 +1,28 @@
 module.exports = {
     testEnvironment: 'node',
-    testMatch: ['**/tests/**/*.test.js'],
+    testMatch: ['**/src/tests/**/*.test.js'],
     collectCoverage: true,
     collectCoverageFrom: [
-        '**/*.js',
+        'src/**/*.js',
+        '!src/server.js',
+        '!src/tests/**/*.js',
         '!**/node_modules/**',
         '!**/coverage/**',
-        '!**/tests/**',
         '!**/*.config.js'
     ],
-    coverageDirectory: 'coverage'
+    coverageDirectory: 'coverage',
+    setupFilesAfterEnv: ['./src/tests/setup.js'],
+    verbose: true,
+
+    // Better handling for async operations
+    detectOpenHandles: true,
+    // Don't force exit - properly close resources instead
+    forceExit: false,
+
+    // Set reasonable timeouts
+    testTimeout: 10000,
+
+    clearMocks: true,
+    resetMocks: true,
+    restoreMocks: true
 };

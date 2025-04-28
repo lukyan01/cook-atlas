@@ -1,6 +1,6 @@
 const request = require('supertest');
-const app = require('../index');
-const pool = require('../db');
+const app = require('../app');
+const {getPool} = require('../config/db.config');
 const bcrypt = require('bcrypt');
 
 describe('Authentication API', () => {
@@ -11,8 +11,8 @@ describe('Authentication API', () => {
     // Setup test data
     beforeAll(async () => {
         // Clear test users if they exist
-        await pool.query('DELETE FROM users WHERE email = $1', ['test@example.com']);
-        await pool.query('DELETE FROM users WHERE email = $1', ['testupdated@example.com']);
+        await getPool().query('DELETE FROM users WHERE email = $1', ['test@example.com']);
+        await getPool().query('DELETE FROM users WHERE email = $1', ['testupdated@example.com']);
 
         // Create hashed password for tests
         hashedPassword = await bcrypt.hash(testPassword, 10);
@@ -20,14 +20,13 @@ describe('Authentication API', () => {
 
     afterAll(async () => {
         // Clean up
-        await pool.query('DELETE FROM users WHERE email = $1', ['test@example.com']);
-        await pool.end();
+        await getPool().query('DELETE FROM users WHERE email = $1', ['test@example.com']);
     });
 
-    describe('POST /auth/register', () => {
+    describe('POST /users/auth/register', () => {
         it('should register a new user with valid data', async () => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/users/auth/register')
                 .send({
                     username: 'testuser',
                     email: 'test@example.com',
@@ -46,7 +45,7 @@ describe('Authentication API', () => {
 
         it('should reject registration with duplicate email', async () => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/users/auth/register')
                 .send({
                     username: 'testuser2',
                     email: 'test@example.com',
@@ -61,7 +60,7 @@ describe('Authentication API', () => {
 
         it('should reject registration with weak passwords', async () => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/users/auth/register')
                 .send({
                     username: 'testuser2',
                     email: 'test21@example.com',
@@ -77,7 +76,7 @@ describe('Authentication API', () => {
 
         it('should reject registration with duplicate username', async () => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/users/auth/register')
                 .send({
                     username: 'testuser',
                     email: 'test2@example.com',
@@ -92,7 +91,7 @@ describe('Authentication API', () => {
 
         it('should reject registration with missing required fields', async () => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/users/auth/register')
                 .send({
                     email: 'missing@example.com',
                     password: testPassword
@@ -107,13 +106,13 @@ describe('Authentication API', () => {
     describe('POST /auth/login', () => {
         it('should authenticate user with valid credentials', async () => {
             // Insert test user with known hashed password for login test
-            const userResult = await pool.query(
+            const userResult = await getPool().query(
                 'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING user_id, username, email, role, password',
                 ['loginuser', 'loginuser@example.com', hashedPassword, 'Registered User']
             );
 
             const res = await request(app)
-                .post('/auth/login')
+                .post('/users/auth/login')
                 .send({
                     email: 'loginuser@example.com',
                     password: testPassword
@@ -125,18 +124,18 @@ describe('Authentication API', () => {
             expect(res.body).toHaveProperty('email', 'loginuser@example.com');
 
             // Clean up this test user
-            await pool.query('DELETE FROM users WHERE email = $1', ['loginuser@example.com']);
+            await getPool().query('DELETE FROM users WHERE email = $1', ['loginuser@example.com']);
         });
 
         it('should reject login with invalid password', async () => {
             // Insert test user with known hashed password
-            const userResult = await pool.query(
+            const userResult = await getPool().query(
                 'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING user_id, username, email, role',
                 ['badpassuser', 'badpassuser@example.com', hashedPassword, 'Registered User']
             );
 
             const res = await request(app)
-                .post('/auth/login')
+                .post('/users/auth/login')
                 .send({
                     email: 'badpassuser@example.com',
                     password: 'wrongpassword'
@@ -147,12 +146,12 @@ describe('Authentication API', () => {
             expect(res.body.message).toContain('Invalid credentials');
 
             // Clean up this test user
-            await pool.query('DELETE FROM users WHERE email = $1', ['badpassuser@example.com']);
+            await getPool().query('DELETE FROM users WHERE email = $1', ['badpassuser@example.com']);
         });
 
         it('should reject login with non-existent email', async () => {
             const res = await request(app)
-                .post('/auth/login')
+                .post('/users/auth/login')
                 .send({
                     email: 'nonexistent@example.com',
                     password: testPassword
@@ -165,7 +164,7 @@ describe('Authentication API', () => {
 
         it('should reject login with missing fields', async () => {
             const res = await request(app)
-                .post('/auth/login')
+                .post('/users/auth/login')
                 .send({
                     email: 'test@example.com'
                 });
