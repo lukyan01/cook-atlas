@@ -1,7 +1,8 @@
-import { Grid, Box, Typography, CircularProgress } from '@mui/material';
+import { Grid, Box, Typography, CircularProgress, useTheme as useMuiTheme } from '@mui/material';
 import RecipeCard from './RecipeCard';
 
 const RecipeList = ({ recipes, loading, error }) => {
+  const theme = useMuiTheme();
   // Show loading state
   if (loading) {
     return (
@@ -35,7 +36,7 @@ const RecipeList = ({ recipes, loading, error }) => {
 
   // Show recipes grid
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={3} sx={{ backgroundColor: theme.palette.background.default }}>
       {recipes.map((recipe) => (
         <Grid item xs={12} sm={6} md={4} key={recipe.recipe_id}>
           <RecipeCard recipe={recipe} />

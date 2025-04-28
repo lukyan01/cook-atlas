@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider as CustomThemeProvider, useTheme } from './context/ThemeContext';
 import PageContainer from './components/layout/PageContainer';
 
 // Pages
@@ -11,71 +12,6 @@ import NewRecipePage from './pages/recipes/NewRecipePage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ProfilePage from './pages/profile/ProfilePage';
-
-// Theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#ff5722', // Deep orange
-    },
-    secondary: {
-      main: '#4caf50', // Green
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontWeight: 500,
-    },
-    h2: {
-      fontWeight: 500,
-    },
-    h3: {
-      fontWeight: 500,
-    },
-    h4: {
-      fontWeight: 500,
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 8,
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
-        },
-      },
-    },
-    MuiContainer: {
-      styleOverrides: {
-        root: {
-          paddingTop: '1rem',
-          paddingBottom: '1rem',
-          flex: 1,
-        },
-      },
-    },
-    MuiCssBaseline: {
-      styleOverrides: `
-        html, body, #root {
-          height: 100%;
-          width: 100%;
-        }
-        #root {
-          display: flex;
-          flex-direction: column;
-          min-height: 100vh;
-        }
-      `,
-    },
-  },
-});
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -93,19 +29,20 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-function App() {
+function AppContent() {
+  const { theme } = useTheme();
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AuthProvider>
-        <Router>
-          <Routes>
-            {/* Home */}
-            <Route path="/" element={
-              <PageContainer>
-                <HomePage />
-              </PageContainer>
-            } />
+      <Router>
+        <Routes>
+          {/* Home */}
+          <Route path="/" element={
+            <PageContainer>
+              <HomePage />
+            </PageContainer>
+          } />
 
             <Route path="/recipes/search" element={
               <PageContainer>
@@ -193,8 +130,17 @@ function App() {
             } />
           </Routes>
         </Router>
+      </ThemeProvider>
+    );
+}
+
+function App() {
+  return (
+    <CustomThemeProvider>
+      <AuthProvider>
+        <AppContent />
       </AuthProvider>
-    </ThemeProvider>
+    </CustomThemeProvider>
   );
 }
 

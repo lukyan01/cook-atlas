@@ -18,6 +18,7 @@ import {
   ListItemText,
   ListItemIcon,
   Divider,
+  Tooltip,
 } from '@mui/material';
 import { 
   Menu as MenuIcon, 
@@ -31,9 +32,13 @@ import {
   Person,
   Login,
   Logout,
+  LightMode,
+  DarkMode,
 } from '@mui/icons-material';
 import { styled, alpha } from '@mui/material/styles';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import logoImg from '../../assets/cook-atlas_logo.png';
 
 // Styled search input
 const SearchInput = styled('div')(({ theme }) => ({
@@ -80,6 +85,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const { mode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -119,9 +125,17 @@ const Navbar = () => {
 
   const drawer = (
     <Box sx={{ width: 250 }} onClick={handleDrawerToggle}>
-      <Typography variant="h6" sx={{ my: 2, mx: 2 }}>
-        CookAtlas
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', my: 2, mx: 2 }}>
+        <Box
+          component="img"
+          src={logoImg}
+          alt="CookAtlas Logo"
+          sx={{ height: 40, mr: 1 }}
+        />
+        <Typography variant="h6">
+          CookAtlas
+        </Typography>
+      </Box>
       <Divider />
       <List>
         {mainNavItems.map((item) => (
@@ -164,6 +178,13 @@ const Navbar = () => {
             </ListItemButton>
           </ListItem>
         )}
+        <Divider />
+        <ListItem disablePadding>
+          <ListItemButton onClick={toggleTheme}>
+            <ListItemIcon>{mode === 'dark' ? <LightMode /> : <DarkMode />}</ListItemIcon>
+            <ListItemText primary={`Switch to ${mode === 'dark' ? 'Light' : 'Dark'} Mode`} />
+          </ListItemButton>
+        </ListItem>
       </List>
     </Box>
   );
@@ -185,21 +206,37 @@ const Navbar = () => {
             </IconButton>
 
             {/* Logo */}
-            <Typography
-              variant="h6"
-              noWrap
+            <Box 
               component={RouterLink}
               to="/"
               sx={{
                 mr: 2,
                 display: { xs: 'none', md: 'flex' },
-                fontWeight: 700,
-                color: 'inherit',
+                alignItems: 'center',
                 textDecoration: 'none',
               }}
             >
-              CookAtlas
-            </Typography>
+              <Box
+                component="img"
+                src={logoImg}
+                alt="CookAtlas Logo"
+                sx={{
+                  height: 40,
+                  mr: 1,
+                }}
+              />
+              <Typography
+                variant="h6"
+                noWrap
+                sx={{
+                  fontWeight: 700,
+                  color: 'inherit',
+                  textDecoration: 'none',
+                }}
+              >
+                CookAtlas
+              </Typography>
+            </Box>
 
             {/* Desktop navigation */}
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
@@ -228,6 +265,15 @@ const Navbar = () => {
                 onKeyDown={handleSearch}
               />
             </SearchInput>
+
+            {/* Theme Toggle */}
+            <Box sx={{ mr: 1 }}>
+              <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+                <IconButton color="inherit" onClick={toggleTheme}>
+                  {mode === 'dark' ? <LightMode /> : <DarkMode />}
+                </IconButton>
+              </Tooltip>
+            </Box>
 
             {/* User menu */}
             {isAuthenticated() ? (

@@ -1,6 +1,12 @@
 import { Box, Container, Typography, Link, Grid } from '@mui/material';
+import { useTheme as useMuiTheme } from '@mui/material/styles';
+import { useTheme } from '../../context/ThemeContext';
+import logoImg from '../../assets/cook-atlas_logo.png';
 
 const Footer = () => {
+  const muiTheme = useMuiTheme();
+  const { mode } = useTheme();
+  
   return (
     <Box
       component="footer"
@@ -8,7 +14,7 @@ const Footer = () => {
         py: 3,
         px: 2,
         mt: 'auto',
-        backgroundColor: (theme) => theme.palette.grey[200],
+        backgroundColor: mode === 'dark' ? 'background.paper' : muiTheme.palette.grey[200],
         borderTop: '1px solid',
         borderColor: 'divider',
         width: '100%',
@@ -17,9 +23,17 @@ const Footer = () => {
       <Container maxWidth="lg">
         <Grid container spacing={3}>
           <Grid item xs={12} sm={4}>
-            <Typography variant="h6" color="text.primary" gutterBottom>
-              CookAtlas
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <Box
+                component="img"
+                src={logoImg}
+                alt="CookAtlas Logo"
+                sx={{ height: 30, mr: 1 }}
+              />
+              <Typography variant="h6" color="text.primary">
+                CookAtlas
+              </Typography>
+            </Box>
             <Typography variant="body2" color="text.secondary">
               Your one-stop platform for discovering recipes from across the web
             </Typography>

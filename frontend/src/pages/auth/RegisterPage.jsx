@@ -39,6 +39,11 @@ const RegisterPage = () => {
     });
   };
 
+  function isPasswordStrong(password) {
+    // At least 8 characters, contains numbers and letters
+    return password.length >= 8 && password.length <= 100 && /[A-Za-z]/.test(password) && /[0-9]/.test(password);
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -53,8 +58,8 @@ const RegisterPage = () => {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+    if (!isPasswordStrong(formData.password)) {
+      setError('Password must be at least 8 characters and contain both letters and numbers');
       return;
     }
 
@@ -129,7 +134,7 @@ const RegisterPage = () => {
             value={formData.password}
             onChange={handleChange}
             required
-            helperText="Password must be at least 6 characters long"
+            helperText="Password must be at least 8 characters long"
           />
           
           <TextField
