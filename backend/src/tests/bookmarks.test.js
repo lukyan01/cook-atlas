@@ -14,7 +14,7 @@ describe('Bookmarks API', () => {
         const hashedPassword = await bcrypt.hash('password123', 10);
         const userResult = await getPool().query(
             'INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING *',
-            ['bookmarkuser', 'bookmark@example.com', hashedPassword, 'Registered User']
+            ['bookmarkuser', 'bookmark@example.com', hashedPassword, 'registered']
         );
 
         testUser = userResult.rows[0];

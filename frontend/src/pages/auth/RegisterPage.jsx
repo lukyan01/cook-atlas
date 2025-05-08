@@ -26,7 +26,7 @@ const RegisterPage = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'Registered User',
+        role: 'registered',
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -160,8 +160,8 @@ const RegisterPage = () => {
                             onChange={handleChange}
                          variant={"filled"}>
                             {/* TODO: Fix account types and admin registration */}
-                            <MenuItem value="Registered User">Food Enthusiast</MenuItem>
-                            <MenuItem value="Recipe Creator">Content Creator</MenuItem>
+                            <MenuItem value="registered">Food Enthusiast</MenuItem>
+                            <MenuItem value="registered">Content Creator</MenuItem>
                         </Select>
                         <FormHelperText>
                             Content Creators can upload and share their own recipes

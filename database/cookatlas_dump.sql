@@ -392,7 +392,7 @@ CREATE TABLE public.users (
     require_password_reset boolean DEFAULT false,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT users_role_check CHECK (((role)::text = ANY (ARRAY[('admin'::character varying)::text, ('registered'::character varying)::text])))
+    CONSTRAINT check_user_roles CHECK (((role)::text = ANY (ARRAY[('admin'::character varying)::text, ('registered'::character varying)::text])))
 );
 
 
@@ -833,6 +833,7 @@ COPY public.tag (tag_id, name) FROM stdin;
 --
 
 COPY public.users (user_id, username, email, password_hash, role, pw_reset_token, pw_token_expiry, is_first_admin, require_password_reset, created_at, updated_at) FROM stdin;
+108	lukyan2004@gmail.com	lukyan2004@gmail.com	$2b$10$cJ0/.by1A0by86fn5PTOU.Iz0VTOCMPWbZSsmL8rWRZ/pPsmAjIpe	registered	\N	\N	f	f	2025-05-08 14:06:29.820466	2025-05-08 14:06:29.820466
 16	user16	user16@example.com	password16	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
 15	user15	user15@example.com	password15	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
 13	user13	user13@example.com	password13	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
@@ -916,7 +917,7 @@ SELECT pg_catalog.setval('public.tag_tag_id_seq', 20, true);
 -- Name: users_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_user_id_seq', 102, true);
+SELECT pg_catalog.setval('public.users_user_id_seq', 108, true);
 
 
 --

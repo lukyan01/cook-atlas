@@ -31,14 +31,14 @@ describe('Authentication API', () => {
                     username: 'testuser',
                     email: 'test@example.com',
                     password: testPassword,
-                    role: 'Registered User'
+                    role: 'registered'
                 });
 
             expect(res.statusCode).toBe(201);
             expect(res.body).toHaveProperty('user_id');
             expect(res.body).toHaveProperty('username', 'testuser');
             expect(res.body).toHaveProperty('email', 'test@example.com');
-            expect(res.body).toHaveProperty('role', 'Registered User');
+            expect(res.body).toHaveProperty('role', 'registered');
 
             testUser = res.body;
         });
@@ -50,7 +50,7 @@ describe('Authentication API', () => {
                     username: 'testuser2',
                     email: 'test@example.com',
                     password: testPassword,
-                    role: 'Registered User'
+                    role: 'registered'
                 });
 
             expect(res.statusCode).toBe(400);
@@ -65,7 +65,7 @@ describe('Authentication API', () => {
                     username: 'testuser2',
                     email: 'test21@example.com',
                     password: '123',
-                    role: 'Registered User'
+                    role: 'registered'
                 });
 
             expect(res.statusCode).toBe(400);
@@ -81,7 +81,7 @@ describe('Authentication API', () => {
                     username: 'testuser',
                     email: 'test2@example.com',
                     password: testPassword,
-                    role: 'Registered User'
+                    role: 'registered'
                 });
 
             expect(res.statusCode).toBe(400);
@@ -108,7 +108,7 @@ describe('Authentication API', () => {
             // Insert test user with known hashed password for login test
             const userResult = await getPool().query(
                 'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING user_id, username, email, role, password',
-                ['loginuser', 'loginuser@example.com', hashedPassword, 'Registered User']
+                ['loginuser', 'loginuser@example.com', hashedPassword, 'registered']
             );
 
             const res = await request(app)
@@ -131,7 +131,7 @@ describe('Authentication API', () => {
             // Insert test user with known hashed password
             const userResult = await getPool().query(
                 'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING user_id, username, email, role',
-                ['badpassuser', 'badpassuser@example.com', hashedPassword, 'Registered User']
+                ['badpassuser', 'badpassuser@example.com', hashedPassword, 'registered']
             );
 
             const res = await request(app)

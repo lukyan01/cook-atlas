@@ -11,7 +11,7 @@ class UserModel {
     }
 
     // Register a new user
-    async registerUser({username, email, password, role = 'Registered User'}) {
+    async registerUser({username, email, password, role = 'registered'}) {
         // Check if email already exists
         const emailCheck = await getPool().query('SELECT * FROM users WHERE email = $1', [email]);
         if (emailCheck.rows.length > 0) {
