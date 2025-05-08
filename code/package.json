@@ -1,0 +1,19 @@
+{
+  "name": "cook-atlas",
+  "version": "1.0.0",
+  "description": "- **Git**\r - **PostgreSQL** (installed locally)\r - **Node.js**",
+  "main": "index.js",
+  "scripts": {
+    "clean": "./clean-and-build.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "pg": "^8.14.1"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}
