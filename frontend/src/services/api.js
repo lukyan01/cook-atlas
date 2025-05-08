@@ -75,41 +75,6 @@ export const recipeApi = {
             throw error;
         }
     },
-
-    // For backward compatibility
-    legacyAddRecipe: async (recipeData) => {
-        try {
-            const response = await api.post('/insert', recipeData);
-            return response.data;
-        } catch (error) {
-            console.error('Error adding recipe (legacy):', error);
-            throw error;
-        }
-    },
-
-    legacyUpdateRecipe: async (id, title, description) => {
-        try {
-            const response = await api.post('/update', {
-                recipe_id: id,
-                title,
-                description
-            });
-            return response.data;
-        } catch (error) {
-            console.error('Error updating recipe (legacy):', error);
-            throw error;
-        }
-    },
-
-    legacyDeleteRecipe: async (id) => {
-        try {
-            const response = await api.post('/delete', {recipe_id: id});
-            return response.data;
-        } catch (error) {
-            console.error('Error deleting recipe (legacy):', error);
-            throw error;
-        }
-    },
 };
 
 // User API functions
@@ -117,7 +82,7 @@ export const userApi = {
     // Register user
     register: async (userData) => {
         try {
-            const response = await api.post('/auth/register', userData);
+            const response = await api.post('/users/auth/register', userData);
             return response.data;
         } catch (error) {
             console.error('Registration error:', error);
@@ -128,7 +93,7 @@ export const userApi = {
     // Login user
     login: async (credentials) => {
         try {
-            const response = await api.post('/auth/login', credentials);
+            const response = await api.post('/users/auth/login', credentials);
             return response.data;
         } catch (error) {
             console.error('Login error:', error);
@@ -156,7 +121,32 @@ export const userApi = {
             console.error('Error updating profile:', error);
             throw error;
         }
-    }
+    },
+
+    // Request password reset link
+    requestPasswordReset: async (email) => {
+        try {
+            const response = await api.post('/users/auth/forgot-password', { email });
+            return response.data;
+        } catch (error) {
+            console.error('Password reset request error:', error);
+            throw error.response?.data || error;
+        }
+    },
+
+    // Reset password with token
+    resetPasswordWithToken: async (token, newPassword) => {
+        try {
+            const response = await api.post('/users/auth/reset-password', {
+                token,
+                newPassword
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Password reset error:', error);
+            throw error.response?.data || error;
+        }
+    },
 };
 
 // Bookmark API functions

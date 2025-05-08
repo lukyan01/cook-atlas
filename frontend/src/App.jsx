@@ -12,6 +12,8 @@ import NewRecipePage from './pages/recipes/NewRecipePage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ProfilePage from './pages/profile/ProfilePage';
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage.jsx";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage.jsx";
 
 // Protected route component
 const ProtectedRoute = ({children}) => {
@@ -80,6 +82,18 @@ function AppContent() {
                     <Route path="/register" element={
                         <PageContainer maxWidth="sm">
                             <RegisterPage/>
+                        </PageContainer>
+                    }/>
+
+                    <Route path="/forgot-password" element={
+                        <PageContainer maxWidth="sm">
+                            <ForgotPasswordPage/>
+                        </PageContainer>
+                    }/>
+
+                    <Route path="/reset-password/:token" element={
+                        <PageContainer maxWidth="sm">
+                            <ResetPasswordPage/>
                         </PageContainer>
                     }/>
 

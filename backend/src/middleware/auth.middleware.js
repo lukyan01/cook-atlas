@@ -36,7 +36,7 @@ const adminAuth = async (req, res, next) => {
         // First run normal authentication
         await auth(req, res, () => {
             // Check if user has admin role
-            if (req.user && req.user.role === 'Admin') {
+            if (req.user && req.user.role === 'admin') {
                 next();
             } else {
                 res.status(403).json({message: 'Admin privileges required'});

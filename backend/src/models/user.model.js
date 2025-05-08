@@ -1,6 +1,7 @@
 const {getPool} = require('../config/db.config');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const crypto = require('crypto');
 
 class UserModel {
     // Check if password meets strength requirements
@@ -33,7 +34,7 @@ class UserModel {
 
         // Insert the new user
         const result = await getPool().query(
-            'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING user_id, username, email, role',
+            'INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING user_id, username, email, role',
             [username, email, hashedPassword, role]
         );
 
@@ -44,7 +45,7 @@ class UserModel {
     async loginUser({email, password}) {
         // Get user with password field for comparison
         const result = await getPool().query(
-            'SELECT user_id, username, email, role, password FROM users WHERE email = $1',
+            'SELECT user_id, username, email, role, password_hash FROM users WHERE email = $1',
             [email]
         );
 
@@ -82,6 +83,73 @@ class UserModel {
             [username, email, id]
         );
         return result.rows[0];
+    }
+
+    // Generate password reset token
+    async generatePasswordResetToken(email) {
+        // Check if user exists
+        const userResult = await getPool().query(
+            'SELECT user_id FROM users WHERE email = $1',
+            [email]
+        );
+
+        if (userResult.rows.length === 0) {
+            return null; // User not found
+        }
+
+        // Generate random token
+        const token = crypto.randomBytes(32).toString('hex');
+
+        // Set expiration time (+1 hour)
+        const expiryDate = new Date();
+        expiryDate.setHours(expiryDate.getHours() + 1);
+
+        // Store token in database
+        await getPool().query(
+            'UPDATE users SET pw_reset_token = $1, pw_token_expiry = $2 WHERE email = $3',
+            [token, expiryDate, email]
+        );
+
+        return token;
+    }
+
+    // Reset password with user provided token
+    async resetPasswordWithToken(token, newPassword) {
+        // Find user with this token
+        const result = await getPool().query(
+            'SELECT user_id, pw_token_expiry FROM users WHERE pw_reset_token = $1',
+            [token]
+        );
+
+        if (result.rows.length === 0) {
+            return { success: false, message: 'Invalid or expired token' };
+        }
+
+        const user = result.rows[0];
+
+        // Check if token has expired
+        if (new Date() > new Date(user.pw_token_expiry)) {
+            return { success: false, message: 'Token has expired' };
+        }
+
+        // Validate password strength
+        if (!this.isPasswordStrong(newPassword)) {
+            return {
+                success: false,
+                message: 'Password must be at least 8 characters and contain both letters and numbers'
+            };
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        // Update user's password and clear reset token
+        await getPool().query(
+            'UPDATE users SET password_hash = $1, pw_reset_token = NULL, pw_token_expiry = NULL WHERE user_id = $2',
+            [hashedPassword, user.user_id]
+        );
+
+        return { success: true, message: 'Password updated successfully' };
     }
 }
 

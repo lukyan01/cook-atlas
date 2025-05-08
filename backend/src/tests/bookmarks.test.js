@@ -13,7 +13,7 @@ describe('Bookmarks API', () => {
         // Create test user with hashed password
         const hashedPassword = await bcrypt.hash('password123', 10);
         const userResult = await getPool().query(
-            'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *',
+            'INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING *',
             ['bookmarkuser', 'bookmark@example.com', hashedPassword, 'Registered User']
         );
 
@@ -139,7 +139,7 @@ describe('Bookmarks API', () => {
             // Create a new user with no bookmarks
             const nobookmarksPassword = await bcrypt.hash('password123', 10);
             const newUserResult = await getPool().query(
-                'INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *',
+                'INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING *',
                 ['nobookmarks', 'nobookmarks@example.com', nobookmarksPassword, 'Registered User']
             );
 

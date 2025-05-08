@@ -40,6 +40,24 @@ export const AuthProvider = ({children}) => {
         }
     };
 
+    const requestPasswordReset = async (email) => {
+        try {
+            return await userApi.requestPasswordReset(email);
+        } catch (error) {
+            console.error('Password reset error:', error);
+            throw error;
+        }
+    };
+
+    const resetPasswordWithToken = async (token, newPassword) => {
+        try {
+            return await userApi.resetPasswordWithToken(token, newPassword);
+        } catch (error) {
+            console.error('Password reset with token error:', error);
+            throw error;
+        }
+    };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem('user');
@@ -59,6 +77,8 @@ export const AuthProvider = ({children}) => {
                 loading,
                 login,
                 register,
+                requestPasswordReset,
+                resetPasswordWithToken,
                 logout,
                 isAuthenticated,
                 hasRole,

@@ -27,7 +27,7 @@ describe('Recipes API', () => {
         // ––––––––––––––––––– Create a dedicated recipe‑creator user
         const hashedPassword = await bcrypt.hash('password123', 10);
         const {rows: [u]} = await getPool().query(
-            `INSERT INTO users (username, email, password, role)
+            `INSERT INTO users (username, email, password_hash, role)
              VALUES ('recipe_creator', 'creator@example.com', $1, 'Recipe Creator')
              RETURNING *`,
             [hashedPassword]

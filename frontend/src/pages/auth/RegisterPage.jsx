@@ -1,20 +1,20 @@
 import {useState} from 'react';
 import {Link as RouterLink, useNavigate} from 'react-router-dom';
 import {
-  Alert,
-  Box,
-  Button,
-  Divider,
-  FormControl,
-  FormHelperText,
-  Grid,
-  InputLabel,
-  Link,
-  MenuItem,
-  Paper,
-  Select,
-  TextField,
-  Typography,
+    Alert,
+    Box,
+    Button,
+    Divider,
+    FormControl,
+    FormHelperText,
+    Grid,
+    InputLabel,
+    Link,
+    MenuItem,
+    Paper,
+    Select,
+    TextField,
+    Typography,
 } from '@mui/material';
 import {useAuth} from '../../context/AuthContext';
 
@@ -158,7 +158,8 @@ const RegisterPage = () => {
                             value={formData.role}
                             label="Account Type"
                             onChange={handleChange}
-                        >
+                         variant={"filled"}>
+                            {/* TODO: Fix account types and admin registration */}
                             <MenuItem value="Registered User">Food Enthusiast</MenuItem>
                             <MenuItem value="Recipe Creator">Content Creator</MenuItem>
                         </Select>
