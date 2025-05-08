@@ -16,6 +16,20 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -370,13 +384,33 @@ CREATE TABLE public.users (
     user_id integer NOT NULL,
     username character varying(50) NOT NULL,
     email character varying(100) NOT NULL,
-    password character varying(100) NOT NULL,
+    password_hash character varying(100) NOT NULL,
     role character varying(20) NOT NULL,
-    CONSTRAINT users_role_check CHECK (((role)::text = ANY (ARRAY[('General User'::character varying)::text, ('Registered User'::character varying)::text, ('Recipe Creator'::character varying)::text, ('Administrator'::character varying)::text])))
+    pw_reset_token character varying(255) DEFAULT NULL::character varying,
+    pw_token_expiry timestamp without time zone,
+    is_first_admin boolean DEFAULT false,
+    require_password_reset boolean DEFAULT false,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT users_role_check CHECK (((role)::text = ANY (ARRAY[('admin'::character varying)::text, ('registered'::character varying)::text])))
 );
 
 
 ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- Name: COLUMN users.pw_reset_token; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.users.pw_reset_token IS 'generated password reset token';
+
+
+--
+-- Name: COLUMN users.pw_token_expiry; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.users.pw_token_expiry IS 'password reset token expiery time';
+
 
 --
 -- Name: users_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -705,8 +739,8 @@ COPY public.recipes (recipe_id, creator_id, title, description, cook_time, prep_
 15	6	Sushi	Traditional sushi rolls.	60	30	Advanced	YouTube	https://youtube.com/sushi	https://images.unsplash.com/photo-1553621042-f6e147245754?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8c3VzaGl8ZW58MHx8MHx8fDI%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Sushi**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Sushi** and enjoy!\n
 18	6	Brownies	Chewy chocolate brownies.	45	20	Intermediate	Website	https://example.com/brownies	https://images.unsplash.com/photo-1515037893149-de7f840978e2?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YnJvd25pZXN8ZW58MHx8MHx8fDI%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Brownies**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Brownies** and enjoy!\n
 20	3	Cheesecake	Creamy cheesecake.	90	30	Advanced	Blog	https://example.com/cheesecake	https://images.unsplash.com/photo-1578775887804-699de7086ff9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2hlZXNjYWtlfGVufDB8fDB8fHwy	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Cheesecake**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Cheesecake** and enjoy!\n
-21	21	Cheese Buns	Buns wit cheese	10	5	Beginner	YouTube	https://www.youtube.com/shorts/zaBO5RBU15s	https://images.unsplash.com/photo-1745031601360-b189f522ea90?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2hlZXNlJTIwYnVuc3xlbnwwfHwwfHx8Mg%3D%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Cheese Buns**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Cheese Buns** and enjoy!\n
 4	9	Pancakes	Fluffy pancakes.	20	10	Beginner	Instagram	https://instagram.com/pancakes	https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFuY2FrZXN8ZW58MHx8MHx8fDI%3D	\n#### Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Pancakes**\n\n#### Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Pancakes** and enjoy!\n
+21	3	Cheese Buns	Buns wit cheese	10	5	Beginner	YouTube	https://www.youtube.com/shorts/zaBO5RBU15s	https://images.unsplash.com/photo-1745031601360-b189f522ea90?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2hlZXNlJTIwYnVuc3xlbnwwfHwwfHx8Mg%3D%3D	\n## Ingredients\n\n- 1 tbsp olive oil\n- 1 onion, chopped\n- 2 garlic cloves, minced\n- Main ingredient for **Cheese Buns**\n\n## Instructions\n\n1. Heat olive oil in a pan.\n2. Add onion; cook until translucent.\n3. Add remaining ingredients and cook until done.\n4. Plate the **Cheese Buns** and enjoy!\n
 \.
 
 
@@ -798,29 +832,27 @@ COPY public.tag (tag_id, name) FROM stdin;
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.users (user_id, username, email, password, role) FROM stdin;
-1	user1	user1@example.com	password1	General User
-2	user2	user2@example.com	password2	Registered User
-3	user3	user3@example.com	password3	Recipe Creator
-4	user4	user4@example.com	password4	General User
-5	user5	user5@example.com	password5	Administrator
-6	user6	user6@example.com	password6	Recipe Creator
-7	user7	user7@example.com	password7	Registered User
-8	user8	user8@example.com	password8	General User
-9	user9	user9@example.com	password9	Recipe Creator
-10	user10	user10@example.com	password10	Administrator
-11	user11	user11@example.com	password11	Registered User
-12	user12	user12@example.com	password12	General User
-13	user13	user13@example.com	password13	Recipe Creator
-14	user14	user14@example.com	password14	Administrator
-15	user15	user15@example.com	password15	General User
-16	user16	user16@example.com	password16	Registered User
-17	user17	user17@example.com	password17	Recipe Creator
-18	user18	user18@example.com	password18	Administrator
-19	user19	user19@example.com	password19	General User
-20	user20	user20@example.com	password20	Registered User
-21	asterope	newemail@gmail.com	adminbaby	Registered User
-71	asteropee	lukyan@vt.edu	$2b$10$tG4HlCDWm2Lgqhg/1Eh2SO1.Am6sCqPdiUK7rssHzr8YYu8RRhh2i	Recipe Creator
+COPY public.users (user_id, username, email, password_hash, role, pw_reset_token, pw_token_expiry, is_first_admin, require_password_reset, created_at, updated_at) FROM stdin;
+16	user16	user16@example.com	password16	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+15	user15	user15@example.com	password15	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+13	user13	user13@example.com	password13	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+9	user9	user9@example.com	password9	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+8	user8	user8@example.com	password8	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+6	user6	user6@example.com	password6	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+11	user11	user11@example.com	password11	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+18	user18	user18@example.com	password18	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+20	user20	user20@example.com	password20	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+19	user19	user19@example.com	password19	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+3	user3	user3@example.com	password3	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+14	user14	user14@example.com	password14	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+7	user7	user7@example.com	password7	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+10	user10	user10@example.com	password10	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+12	user12	user12@example.com	password12	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+5	user5	user5@example.com	password5	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+17	user17	user17@example.com	password17	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+4	user4	user4@example.com	password4	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+2	user2	user2@example.com	password2	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
+1	user1	user1@example.com	password1	registered	\N	\N	f	f	2025-05-08 10:40:52.695111	2025-05-08 10:41:36.074179
 \.
 
 
@@ -828,7 +860,7 @@ COPY public.users (user_id, username, email, password, role) FROM stdin;
 -- Name: bookmark_bookmark_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.bookmark_bookmark_id_seq', 35, true);
+SELECT pg_catalog.setval('public.bookmark_bookmark_id_seq', 49, true);
 
 
 --
@@ -863,7 +895,7 @@ SELECT pg_catalog.setval('public.rating_rating_id_seq', 20, true);
 -- Name: recipes_recipe_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.recipes_recipe_id_seq', 60, true);
+SELECT pg_catalog.setval('public.recipes_recipe_id_seq', 76, true);
 
 
 --
@@ -884,7 +916,7 @@ SELECT pg_catalog.setval('public.tag_tag_id_seq', 20, true);
 -- Name: users_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_user_id_seq', 71, true);
+SELECT pg_catalog.setval('public.users_user_id_seq', 102, true);
 
 
 --
@@ -1021,6 +1053,20 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_username_key UNIQUE (username);
+
+
+--
+-- Name: idx_users_reset_token; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_users_reset_token ON public.users USING btree (pw_reset_token);
+
+
+--
+-- Name: idx_users_role; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_users_role ON public.users USING btree (role);
 
 
 --
