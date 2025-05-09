@@ -1,4 +1,4 @@
-const { getPool } = require("../config/db.config");
+const { getPool } = require('../config/db.config');
 
 class BookmarkModel {
   // Get all bookmarks for a user

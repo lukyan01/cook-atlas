@@ -1,0 +1,10 @@
+Joshua L. : Back End Developer - developed backend in node.js, assisted in front-end/database development and design. 
+
+Lukyan S. : Database Architect  - ER diagram design and development, also contributed backend/frontend design and development.
+
+Ethan T. : Front End Developer - Database / website conceptualization, assisted with Normalized Relational Schema, also created 
+presentation and handled group logistics (setting up communication server / meetings)
+
+Alek B. : Front End Developer - Established initial interface-database connection, designed first concept of front-end.
+
+Jack M. : Back End Developer- Organized routes and developed backend, created statistical reports, made relational schema.

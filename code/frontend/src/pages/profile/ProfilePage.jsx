@@ -27,7 +27,7 @@ import {
 } from '@mui/icons-material';
 import {useAuth} from '../../context/AuthContext';
 import RecipeList from '../../components/recipes/RecipeList';
-import {bookmarkApi, userApi} from '../../services/api';
+import {bookmarkApi, userApi, recipeApi} from '../../services/api';
 
 const ProfilePage = () => {
     const {user} = useAuth();
@@ -39,7 +39,9 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(false);
     const [profileLoading, setProfileLoading] = useState(true);
     const [bookmarksLoading, setBookmarksLoading] = useState(true);
+    const [recipesLoading, setRecipesLoading] = useState(true);
     const [bookmarkError, setBookmarkError] = useState(null);
+    const [recipeError, setRecipeError] = useState(null);
     const [profileData, setProfileData] = useState({
         name: user?.username || '',
         email: user?.email || '',
@@ -72,6 +74,27 @@ const ProfilePage = () => {
 
         fetchUserBookmarks();
     }, [user]);
+
+    useEffect(() => {
+        const fetchCreatedRecipes = async () => {
+            if (!user) return;
+
+            try {
+                setRecipesLoading(true);
+                setRecipeError(null);
+                const recipes = await recipeApi.getUserRecipes(user.user_id);
+                setCreatedRecipes(recipes);
+            } catch (err) {
+                console.error('Error fetching created recipes:', err);
+            } finally {
+                setRecipesLoading(false);
+            }
+        };
+
+        fetchCreatedRecipes();
+    }, [user]);
+
+
 
     // Fetch user profile
     useEffect(() => {
@@ -423,7 +446,18 @@ const ProfilePage = () => {
                                 Add New Recipe
                             </Button>
                         </Box>
-                        {createdRecipes.length > 0 ? (
+
+                        {recipeError && (
+                            <Alert severity="error" sx={{ mb: 2 }}>
+                                {recipeError}
+                            </Alert>
+                        )}
+
+                        {recipesLoading ? (
+                            <Box sx={{display: 'flex', justifyContent: 'center', py: 4}}>
+                                <CircularProgress/>
+                            </Box>
+                        ) : createdRecipes?.length > 0 ? (
                             <RecipeList recipes={createdRecipes}/>
                         ) : (
                             <Paper
@@ -448,6 +482,7 @@ const ProfilePage = () => {
                     </Box>
                 )}
             </div>
+
 
             <div
                 role="tabpanel"

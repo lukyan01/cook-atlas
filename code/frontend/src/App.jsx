@@ -1,15 +1,7 @@
-import {
-  BrowserRouter as Router,
-  Navigate,
-  Route,
-  Routes,
-} from "react-router-dom";
+import {BrowserRouter as Router,Navigate,Route,Routes,} from "react-router-dom";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import {
-  ThemeProvider as CustomThemeProvider,
-  useTheme,
-} from "./context/ThemeContext";
+import {ThemeProvider as CustomThemeProvider,useTheme,} from "./context/ThemeContext";
 import PageContainer from "./components/layout/PageContainer";
 
 // Pages

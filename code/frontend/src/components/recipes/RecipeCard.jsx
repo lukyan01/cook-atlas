@@ -260,7 +260,7 @@ const RecipeCard = ({recipe}) => {
                         >
                             {bookmarked ? <BookmarkIcon/> : <BookmarkBorderIcon/>}
                         </IconButton>
-                        {user?.role?.toLowerCase() === 'admin' && (
+                        {(user?.role?.toLowerCase() === 'admin' || user?.user_id === recipe.creator_id) && (
                         <IconButton
                             aria-label="Delete recipe"
                             onClick={handleDelete}

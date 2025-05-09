@@ -1,6 +1,6 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const BookmarkController = require("../controllers/bookmark.controller");
+const BookmarkController = require('../controllers/bookmark.controller');
 
 // Bookmark routes
 router.post("/", BookmarkController.addBookmark);

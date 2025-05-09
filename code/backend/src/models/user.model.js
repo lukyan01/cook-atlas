@@ -1,5 +1,5 @@
-const { getPool } = require("../config/db.config");
-const bcrypt = require("bcrypt");
+const { getPool } = require('../config/db.config');
+const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const crypto = require('crypto');
 

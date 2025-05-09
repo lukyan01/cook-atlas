@@ -32,6 +32,17 @@ export const recipeApi = {
     }
   },
 
+  // Get recipes by user ID
+  getUserRecipes: async (userId) => {
+    try {
+      const response = await api.get(`/recipes/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching recipes for user #${userId}:`, error);
+      throw error;
+    }
+  },
+
   // Search recipes with filters
   searchRecipes: async (params) => {
     try {
@@ -157,6 +168,31 @@ export const userApi = {
       throw error;
     }
   },
+
+  // Request password reset link
+    requestPasswordReset: async (email) => {
+        try {
+            const response = await api.post('/users/auth/forgot-password', { email });
+            return response.data;
+        } catch (error) {
+            console.error('Password reset request error:', error);
+            throw error.response?.data || error;
+        }
+    },
+
+    // Reset password with token
+    resetPasswordWithToken: async (token, newPassword) => {
+        try {
+            const response = await api.post('/users/auth/reset-password', {
+                token,
+                newPassword
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Password reset error:', error);
+            throw error.response?.data || error;
+        }
+    },
 
   // Get all users (For Admin's StatsPage)
   getAllUsers: async () => {

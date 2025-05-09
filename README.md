@@ -51,11 +51,24 @@
    DO NOT PUSH .env file, add to .gitignore!
    If you don't know your username, go to pgAdmin4, the PSQL tool, and enter "\du".
 
-3. Test connection
+3. Test connection using the terminal and running this in the backend directory
    ```
-   node index.js
+   npm run dev
    ```
 
+## Running the GUI
+1. cd into the code folder, there will be a backend, frontend, dependencies and a bash file.
+2. Run the bash file in order to install all dependencies required using git bash.
+   ```
+   ./clean-and-build.sh
+   ```
+3. Make two seperate terminal instances and cd into both backend and frontend directories, run
+   this command for both:
+   ```
+   npm run dev
+   ```
+4. Enter the localhost URL provided and user is taken to the GUI.
+5. Users can browse the pages and/or register an account.
 
 ## GIT Workflow
 
@@ -83,4 +96,6 @@
    ```
 
 5. Merge Into Main (plz dont break working code)
+
+
 

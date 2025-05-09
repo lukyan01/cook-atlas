@@ -263,7 +263,7 @@ const Navbar = () => {
                 </Button>
               ))}
               {/*load stat page when user is an admin */}
-              {isAuthenticated() && user && user.role === "Administrator" && (
+              {isAuthenticated() && user && user.role === "admin" && (
                 <Button
                   component={RouterLink}
                   to="/stats"

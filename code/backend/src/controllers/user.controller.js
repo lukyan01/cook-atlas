@@ -171,6 +171,28 @@ class UserController {
             res.status(500).json({ message: 'Failed to reset password', error: err.message });
         }
     }
+
+    async getAllUsers(req, res) {
+    try {
+      const users = await UserModel.getAllUsers();
+      return res.status(200).json(users);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Server error" });
+    }
+  }
+
+  // Delete a user by id
+  async deleteUser(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await UserModel.deleteUser(id);
+      return res.status(200).json({ message: "User deleted", result });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Server error" });
+    }
+  }
 }
 
 module.exports = new UserController();

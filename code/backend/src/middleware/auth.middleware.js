@@ -2,7 +2,7 @@
  * Authentication middleware for protected routes
  */
 
-const UserModel = require("../models/user.model");
+const UserModel = require('../models/user.model');
 
 // Middleware to verify if the user is authenticated
 const auth = async (req, res, next) => {
@@ -26,9 +26,7 @@ const auth = async (req, res, next) => {
     next();
   } catch (err) {
     console.error("Authentication error:", err);
-    res
-      .status(401)
-      .json({ message: "Authentication failed", error: err.message });
+    res.status(401).json({ message: "Authentication failed", error: err.message });
   }
 };
 

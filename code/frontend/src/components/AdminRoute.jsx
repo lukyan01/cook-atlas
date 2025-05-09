@@ -6,7 +6,7 @@ const AdminRoute = ({ children }) => {
   const { isAuthenticated, user, loading } = useAuth();
 
   if (loading) return null;
-  if (!isAuthenticated() || !user || user.role !== "Administrator") {
+  if (!isAuthenticated() || !user || user.role !== "admin") {
     return <Navigate to="/" />;
   }
 
