@@ -13,6 +13,13 @@ class RecipeModel {
         return result.rows[0];
     }
 
+    // get recipe by creator
+    async getRecipesByCreator(userId) {
+        const result = await getPool().query('SELECT * FROM recipes WHERE creator_id = $1 ORDER BY recipe_id DESC', [userId]);
+        return result.rows;
+    }
+
+
     // Search recipes with multiple filters
     async searchRecipes(params) {
         const {

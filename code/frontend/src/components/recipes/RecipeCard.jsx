@@ -260,20 +260,20 @@ const RecipeCard = ({recipe}) => {
                         >
                             {bookmarked ? <BookmarkIcon/> : <BookmarkBorderIcon/>}
                         </IconButton>
-                        {user?.role?.toLowerCase() === 'admin' && (
+
+                        {(user?.role?.toLowerCase() === 'admin' || user?.user_id === recipe.creator_id) && (
                         <IconButton
                             aria-label="Delete recipe"
                             onClick={handleDelete}
                             color="error"
                             sx={{ 
-                                '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.1)' 
-
-                                } 
+                                '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.1)' } 
                             }}
                         >
                             <DeleteIcon />
                         </IconButton>
-                        )}
+                    )}
+
 
                     </Box>
                 </CardActions>

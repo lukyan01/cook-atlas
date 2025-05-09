@@ -32,6 +32,17 @@ export const recipeApi = {
         }
     },
 
+        // Get recipes by user ID
+    getUserRecipes: async (userId) => {
+        try {
+            const response = await api.get(`/recipes/user/${userId}`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching recipes for user #${userId}:`, error);
+            throw error;
+        }
+    },
+
     // Search recipes with filters
     searchRecipes: async (params) => {
         try {
