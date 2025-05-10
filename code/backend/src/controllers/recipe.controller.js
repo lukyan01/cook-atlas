@@ -41,6 +41,19 @@ class RecipeController {
         }
     }
 
+    //get recipe by the creator
+    async getRecipesByCreator(req, res) {
+        try {
+            const { user_id } = req.params;
+            const recipes = await RecipeModel.getRecipesByCreator(user_id);
+            res.json(recipes);
+        } catch (err) {
+            console.error('Error in getRecipesByCreator:', err);
+            res.status(500).json({ message: 'Failed to fetch user recipes', error: err.message });
+        }
+    }
+
+
     // Search recipes
     async searchRecipes(req, res) {
         try {

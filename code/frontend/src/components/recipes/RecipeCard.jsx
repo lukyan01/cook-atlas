@@ -266,14 +266,13 @@ const RecipeCard = ({recipe}) => {
                             onClick={handleDelete}
                             color="error"
                             sx={{ 
-                                '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.1)' 
-
-                                } 
+                                '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.1)' } 
                             }}
                         >
                             <DeleteIcon />
                         </IconButton>
-                        )}
+                    )}
+
 
                     </Box>
                 </CardActions>

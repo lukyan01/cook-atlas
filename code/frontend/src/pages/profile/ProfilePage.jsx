@@ -28,6 +28,7 @@ import {
 import {useAuth} from '../../context/AuthContext';
 import RecipeList from '../../components/recipes/RecipeList';
 import {bookmarkApi, userApi, recipeApi} from '../../services/api';
+import {bookmarkApi, userApi, recipeApi} from '../../services/api';
 
 const ProfilePage = () => {
     const {user} = useAuth();
@@ -479,6 +480,7 @@ const ProfilePage = () => {
                                 </Button>
                             </Paper>
                         )}
+
                     </Box>
                 )}
             </div>
